@@ -10,23 +10,18 @@ import java.util.Map.Entry;
 import javax.swing.JComponent;
 import javax.swing.JToggleButton;
 
-public class RemoveListener implements MouseListener {
+public class BuilderRemoveListener implements MouseListener {
 	private Graphics2D g;
 	private boolean valid = false;
-	JComponent canvas = null;
+	MakeBuilderLabel canvas = null;
 	JToggleButton button = null;
 	int width = 1;
-	ImageDealer imageDealer = null;
 	private int maxLength = 500;
 	boolean[][] region = null;
-	int[][] label = null;
 	
-	public RemoveListener (JComponent canvas, ImageDealer imageDealer, boolean[][] region, int[][] label) {
+	public BuilderRemoveListener (MakeBuilderLabel canvas) {
 		this.canvas = canvas;
 //		this.list = list;
-		this.imageDealer = imageDealer;
-		this.region = region;
-		this.label = label;
 	}
 
 	
@@ -38,21 +33,25 @@ public class RemoveListener implements MouseListener {
 		this.region = region;
 	}
 	
-	public void setRegionLabel(int[][] label) {
-		this.label = label;
-	}
+//	public void setRegionLabel(int[][] label) {
+//		this.label = label;
+//	}
 
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
 		if(valid) {
+			int cwidth = canvas.getWidth();
+			int cheight = canvas.getHeight();
 			Point point = e.getPoint();
-			double length = imageDealer.getWidth();
-			double tx = imageDealer.getStartPoint().getX();
-			double ty = imageDealer.getStartPoint().getY();
+//			double length = imageDealer.getWidth();
+//			double tx = imageDealer.getStartPoint().getX();
+//			double ty = imageDealer.getStartPoint().getY();
 //			Point p = new Point();
-			int x = (int) (point.getX()*imageDealer.getWidth()/imageDealer.maxImageWidth + tx);
-			int y = (int) (point.getY()*imageDealer.getHeight()/imageDealer.maxImageHeight + ty);
+//			int x = (int) (point.getX()*imageDealer.getWidth()/imageDealer.maxImageWidth + tx);
+//			int y = (int) (point.getY()*imageDealer.getHeight()/imageDealer.maxImageHeight + ty);
+			int x = (int) (point.getX()/cwidth*region.length);
+			int y = (int) (point.getY()/cheight*region[0].length);
 			System.out.println(x + " " + y);
 			
 			
@@ -72,8 +71,8 @@ public class RemoveListener implements MouseListener {
 						for(int[] xy:points) {
 //							System.out.println(xy[0] + " " + xy[1]);
 							region[xy[0]][xy[1]] = false;
-							label[xy[0]][xy[1]] = 0;
 						}
+						canvas.getComponentBorder(region);
 						break;
 					}
 				}

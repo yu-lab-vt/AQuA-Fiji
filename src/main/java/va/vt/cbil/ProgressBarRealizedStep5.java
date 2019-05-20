@@ -26,6 +26,12 @@ import javax.swing.SwingWorker;
 
 import va.vt.cbil.ProgressBarRealizedStep3.RiseNode;
 
+/**
+ * The fifth step of the whole software, to merge the neighbor events. 
+ * 
+ * @author Xuelong Mi
+ * @version 1.0
+ */
 public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 	JFrame frame = new JFrame("Step5");
 	JPanel curPanel = new JPanel();
@@ -36,11 +42,20 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 	static long end;
 	ImageDealer imageDealer = null;
 	String proPath = null;
+	/**
+	 * Construct the class by imageDealer. 
+	 * 
+	 * @param imageDealer used to read the parameter
+	 */
 	public ProgressBarRealizedStep5(ImageDealer imageDealer) {
 		this.imageDealer = imageDealer;
 		proPath = imageDealer.proPath;
+		imageDealer.running = true;
 	}
 	
+	/**
+	 * Set the Jframe and its content, used to show the progress bar.
+	 */
 	protected void setting() {
 		frame.setSize(400, 200);
 		frame.setLocationRelativeTo(null);
@@ -63,6 +78,11 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		
 	}
 	
+	/**
+	 * Merge the events
+	 * 
+	 * @return return the labels of different events
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	protected int[][][] doInBackground() throws Exception {
@@ -109,7 +129,7 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		publish(2);
 		HashMap<Integer,ArrayList<int[]>> evtLstMerge = null;
 		if(opts.ignoreMerge==0) {
-			evtLstMerge = mergeEvt(evtLstFilterZ, dffMatFilterZ, tBeginFilterZ, opts);
+			evtLstMerge = mergeEvt(evtLstFilterZ, dffMatFilterZ, tBeginFilterZ, imageDealer.regionMarkLabel, opts);
 		}else {
 			evtLstMerge = evtLstFilterZ;
 		}
@@ -127,7 +147,7 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		
 		System.out.println(evtLstMerge.size());
 		
-		
+		int nEvt = evtLstMerge.size();
 		publish(3);
 		try {
 			FileOutputStream f = null;
@@ -143,17 +163,32 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 			o.writeObject(evtLstMerge);
 			o.close();
 			f.close();
+			
+			f = new FileOutputStream(new File(proPath + "nEvt.ser"));
+			o = new ObjectOutputStream(f);
+			o.writeObject(nEvt);
+			o.close();
+			f.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		imageDealer.center.EvtNumber.setText(nEvt+"");
 		
 		return labels;
 	}
 	
+	/**
+	 *  Merge the event
+	 * @param evtLst the event list
+	 * @param dffMat
+	 * @param tBegin the beginning time of event
+	 * @param opts
+	 * @return
+	 */
 	private HashMap<Integer, ArrayList<int[]>> mergeEvt(HashMap<Integer, ArrayList<int[]>> evtLst,
-			HashMap<Integer, float[]> dffMat, HashMap<Integer, Integer> tBegin, Opts opts) {
+			HashMap<Integer, float[]> dffMat, HashMap<Integer, Integer> tBegin, int[][] bdMap, Opts opts) {
 		System.out.println("Merging");
 		int W = opts.W;
 		int H = opts.H;
@@ -172,7 +207,8 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		}
 		
 		// dilate events
-		dilate(mIn,minDist);
+		mIn = dilate(mIn,minDist,bdMap);
+		
 		
 		// neighbor graphs
 		HashMap<Integer, ArrayList<int[]>> evtLstM = evtNeibCorr(mIn,dffMat,tBegin,minCorr,maxTimeDif,evtLst.size());
@@ -181,6 +217,17 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		return evtLstM;
 	}
 
+	/**
+	 * According the beginning time, 2D position, average curve, 
+	 * to calculate the correlation and then merge 
+	 * @param mIn
+	 * @param dffMat
+	 * @param tBegin
+	 * @param minCorr
+	 * @param maxTimeDif
+	 * @param N
+	 * @return
+	 */
 	private HashMap<Integer, ArrayList<int[]>> evtNeibCorr(int[][][] mIn, HashMap<Integer, float[]> dffMat, HashMap<Integer, Integer> tBegin,
 			int minCorr, int maxTimeDif,int N) {
 		// evtNeib detect neighboring events based on curve corrrelation
@@ -207,8 +254,10 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 					int x = Math.min(Math.max(0, p[0]+dw[r]),W-1);
 					int y = Math.min(Math.max(0, p[1]+dh[r]),H-1);
 					int t = p[2];
-					if(mIn[x][y][t]>0&&mIn[x][y][t]<n)
+					if(mIn[x][y][t]>0 && mIn[x][y][t]<n)
 						xNeib.add(mIn[x][y][t]);
+//					if(xNeib.contains(2)&&n==111)
+//						System.out.println(x + " " + y + " " + t);
 				}
 				xNeib.removeAll(neib0);
 				ArrayList<Integer> xNeibLst = new ArrayList<>(xNeib);
@@ -344,6 +393,14 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		return evtM;
 	}
 	
+	/**
+	 * Calculate correlation of c0 and c1 between t0 and ta
+	 * @param c0
+	 * @param c1
+	 * @param t0
+	 * @param t1
+	 * @return
+	 */
 	public float correlation(float[] c0, float[] c1, int t0, int t1) {
 		int T = t1-t0+1;
 		float m1 = 0;
@@ -366,6 +423,11 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		return result;
 	}
 	
+	/**
+	 * Transfer the label matrix to label map
+	 * @param labelMap
+	 * @return
+	 */
 	public HashMap<Integer,ArrayList<int[]>> label2idx(int[][][] labelMap){
 		HashMap<Integer, ArrayList<int[]>> map = new HashMap<>();
 		int width = labelMap.length;
@@ -391,13 +453,21 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		return map;
 	}
 
-	public int[][][] dilate(int[][][] mIn, int minDist) {
+	/**
+	 * dilate the matrix
+	 * @param mIn
+	 * @param minDist
+	 * @param bdMap 
+	 * @return
+	 */
+	public int[][][] dilate(int[][][] mIn, int minDist, int[][] bdMap) {
 		if(minDist==0)
 			return mIn;
 		int W = mIn.length;
 		int H = mIn[0].length;
 		int T = mIn[0][0].length;
 		
+//		DeBugClass a = new DeBugClass();
 		int[][][] result = new int[W][H][T];
 		for(int t=0;t<T;t++) {
 			HashMap<Integer,ArrayList<int[]>> map = new HashMap<>();
@@ -418,15 +488,25 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 				}
 			}
 			
+			int[][] result0 = new int[W][H];
 			for(int i=1;i<=maxL;i++) {
 				ArrayList<int[]> points = map.get(i);
 				if(points==null)
 					continue;
+				
+				int cellNum = bdMap[points.get(0)[0]][points.get(0)[1]]; 
 				for(int[] p:points) {
-					dilateOnePoint(p[0],p[1],t,minDist,i,result,W,H);
+					dilateOnePoint(p[0],p[1],minDist,i,result0,W,H,bdMap,cellNum);
+				}
+			}
+			for(int x=0;x<W;x++) {
+				for(int y=0;y<H;y++) {
+					result[x][y][t] = result0[x][y];
 				}
 			}
 			
+			
+//			a.labelShow(result0);
 		}
 		
 		return result;
@@ -434,7 +514,20 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 	
 	
 
-	public void dilateOnePoint(int x0, int y0, int t, int minDist, int label, int[][][] result, int W, int H) {
+	/**
+	 * dilate the matrix at x0 and y0 location
+	 * @param x0
+	 * @param y0
+	 * @param t
+	 * @param minDist
+	 * @param label
+	 * @param result
+	 * @param W
+	 * @param H
+	 * @param cellNum 
+	 * @param bdMap 
+	 */
+	public void dilateOnePoint(int x0, int y0, int minDist, int label, int[][] result, int W, int H, int[][] bdMap, int cellNum) {
 		int xs = Math.max(x0-minDist, 0);
 		int xe = Math.min(x0+minDist, W-1);
 		int ys = Math.max(y0-minDist, 0);
@@ -442,12 +535,16 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		
 		for(int x=xs;x<=xe;x++) {
 			for(int y=ys;y<=ye;y++) {
-				result[x][y][t] = label;
+				if(bdMap[x][y]==cellNum)
+					result[x][y] = label;
 			}
 		}
 		
 	}
-
+	
+	/** 
+	 * Report the progress.
+	 */
 	protected void process(List<Integer> chunks) {
 		int value = chunks.get(chunks.size()-1);
 		int total = 3;
@@ -466,15 +563,21 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		jLabel.setText(str);
 	}
 	
+	/** 
+	 * Adjust the interface, save the status, and let the interface show the super voxels
+	 */
 	@Override
 	protected void done() {
 		frame.setVisible(false);
-		JOptionPane.showMessageDialog(null, "Step5 Finish!");
+//		JOptionPane.showMessageDialog(null, "Step5 Finish!");
 		imageDealer.left.nextButton.setEnabled(true);
 		imageDealer.left.backButton.setEnabled(true);
 		imageDealer.left.jTP.setEnabledAt(5, true);
-		imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 5);;
-		imageDealer.right.typeJCB.addItem("Step5: Events Merged");
+		
+		if(imageDealer.left.jTPStatus<5) {
+			imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 5);;
+			imageDealer.right.typeJCB.addItem("Step5: Events Merged");
+		}
 //		imageDealer.right.typeJCB.setSelectedIndex(5);
 		
 		try {
@@ -482,7 +585,16 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-		imageDealer.dealImage();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				imageDealer.dealImage();
+				imageDealer.imageLabel.repaint();
+			}
+			
+		}).start();
 		imageDealer.saveStatus();
+		imageDealer.running = false;
 	}
 }

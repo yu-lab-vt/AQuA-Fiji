@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.HashMap;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -16,6 +17,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+
+import va.vt.cbil.ProgressBarRealizedStep3.RiseNode;
 
 public class LoadProject extends SwingWorker<Void, Integer> {
 	JFrame frame = new JFrame("Read");
@@ -110,6 +113,13 @@ public class LoadProject extends SwingWorker<Void, Integer> {
 			opts = (Opts)oi.readObject();
 			oi.close();
 			fi.close();
+			
+			fi = new FileInputStream(new File(proPath + "nEvt.ser"));	
+			oi = new ObjectInputStream(fi);
+			int nEvt = (int)oi.readObject();
+			oi.close();
+			fi.close();
+			imageDealer.center.EvtNumber.setText(nEvt + "");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -150,6 +160,34 @@ public class LoadProject extends SwingWorker<Void, Integer> {
 		
 		if(imageDealer.left.jTPStatus>=1) {
 			imageDealer.right.typeJCB.addItem("Step1: Active Voxels");
+			try {
+				FileInputStream fi = null;
+				ObjectInputStream oi = null;
+				
+				fi = new FileInputStream(new File(proPath + "Data.ser"));	
+				oi = new ObjectInputStream(fi);
+				imageDealer.dat = (float[][][])oi.readObject();
+
+				oi.close();
+				fi.close();
+				
+				fi = new FileInputStream(new File(proPath + "Df.ser"));	
+				oi = new ObjectInputStream(fi);
+				imageDealer.dF = (float[][][])oi.readObject();
+
+				oi.close();
+				fi.close();
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			
+			imageDealer.center.gaussfilter.setEnabled(true);
+			
 		}
 		if(imageDealer.left.jTPStatus>=2) {
 			imageDealer.right.typeJCB.addItem("Step2: Super Voxels");
@@ -165,6 +203,23 @@ public class LoadProject extends SwingWorker<Void, Integer> {
 		}
 		if(imageDealer.left.jTPStatus>=6) {
 			imageDealer.right.typeJCB.addItem("Step6: Events Reconstructed");
+			try {
+				FileInputStream fi = null;
+				ObjectInputStream oi = null;
+				
+				fi = new FileInputStream(new File(proPath + "ResultInStep4_RiseLstFilterZ.ser"));	
+				oi = new ObjectInputStream(fi);
+				imageDealer.riseLst = (HashMap<Integer, RiseNode>)oi.readObject();
+
+				oi.close();
+				fi.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
 //		imageDealer.right.typeJCB.setSelectedIndex(Math.min(6, imageDealer.left.jTPStatus));
 		
@@ -232,7 +287,7 @@ public class LoadProject extends SwingWorker<Void, Integer> {
 				imageDealer.left.jTP.setEnabledAt(i, true);
 		}
 		imageDealer.left.dealBuilder();
-		imageDealer.dealImage();
+		
 		imageDealer.left.jTP.setSelectedIndex(Math.min(imageDealer.left.jTPStatus,6));
 		
 		if(imageDealer.left.jTPStatus==7) {
@@ -264,7 +319,6 @@ public class LoadProject extends SwingWorker<Void, Integer> {
 				imageDealer.fts = (FtsLst)oi.readObject();
 				oi.close();
 				fi.close();
-				
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -277,6 +331,16 @@ public class LoadProject extends SwingWorker<Void, Integer> {
 		}
 		imageDealer.center.ts = opts.frameRate;
 		imageDealer.right.typeJCB.setEnabled(true);
+//		imageDealer.dealImage();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				imageDealer.imageLabel.repaint();
+				imageDealer.dealImage();
+			}
+			
+		}).start();
 		
 		return null;
 	}

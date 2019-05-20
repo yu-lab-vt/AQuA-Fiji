@@ -53,7 +53,22 @@ public class AquaRunning{
 		settingWindow.putGridBag(centerGroup, aquaWindow, 1, 0);
 		settingWindow.putGridBag(rightGroup, aquaWindow, 2, 0);
 		
-		imageDealer.dealImage();
+		
+		if(load)
+			imageDealer.load(proPath);
+		
+
+		aquaWindow.setVisible(true);
+		try {
+			imageDealer.dealImage();
+			Thread.sleep(200);
+			imageLabel.repaint();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 //		centerGroup.repaint();
 //		aquaWindow.repaint();
 
@@ -69,9 +84,14 @@ public class AquaRunning{
 		
 		
 		
-		aquaWindow.setVisible(true);
 		
-		if(load)
-			imageDealer.load(proPath);
+	}
+	
+	public static void  main(String[] args) {
+		String path = "D:\\ExVivoSuppRaw.tif";
+		String propath = "D:\\TestFolder\\";
+		AquaRunning aq = new AquaRunning();
+		aq.start(path,propath,false,1,1,10,1);
+		
 	}
 }

@@ -16,7 +16,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -24,6 +27,7 @@ import javax.swing.JLabel;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
+import va.vt.cbil.ProgressBarRealizedStep3.RiseNode;
 
 class ImageDealer {
 
@@ -34,10 +38,13 @@ class ImageDealer {
 	private int min = 0;
 	private int max = 0;
 	private int contrast = DEFAULT_CONTRAST_BRIGHTNESS;
+	private int contrastl = DEFAULT_CONTRAST_BRIGHTNESS;
+	private int contrastr = DEFAULT_CONTRAST_BRIGHTNESS;
 	private Point startPoint = null;
 	private Point endPoint = null;
 	private int length = 1;	// little images's size	
 	private float colorScale = 0.5f;	// adjust color brightness
+	boolean running = false;
 	int colorBase = 80;
 	int border = 0;
 	int maxImageWidth = 0;
@@ -46,18 +53,24 @@ class ImageDealer {
 	int sh = 0;
 	int orgMax = 0;
 	int maxAvg = 0;
+	int curFrame = 0;
+	boolean gaussStatus = false;
+	HashMap<Integer, RiseNode> riseLst = null;
 	
 	int[][][] datR = null;
 	float[][] curBuilderImage = null;
 	float[][] avgImage = null;
+	float[][] maxImage = null;
+	float[][][] dat = null;
+	float[][][] dF = null;
 	
 	int maxBuilderWidth = 0;
 	int maxBuilderHeight = 0;
 //	ImageShow image = null;
 	MyImageLabel imageLabel = null;
 	MakeBuilderLabel builderImageLabel = null;
-	JLabel leftImageLabel = null;
-	JLabel rightImageLabel = null;
+	MyImageLabel leftImageLabel = null;
+	MyImageLabel rightImageLabel = null;
 	DrawCurveLabel curveLabel = null;
 	
 	LeftGroupPanel left = null;
@@ -82,8 +95,10 @@ class ImageDealer {
 	boolean drawRegion = false;
 	Opts opts = null;
 	HashSet<Integer> deleteColorSet = new HashSet<>();
+	HashSet<Integer> deleteColorSet2 = new HashSet<>();
 	String path = null;
 	String proPath = null;
+	
 	
 	// mark
 	boolean[][] regionMark = null;
@@ -122,6 +137,7 @@ class ImageDealer {
 		label = new int[width][height][pages];
 		
 		avgImage = new float[width][height];
+		maxImage = new float[width][height];
 		curBuilderImage = new float[width][height];
 		
 		if(border!=0) {
@@ -143,6 +159,7 @@ class ImageDealer {
 					curBuilderImage[i][j] += f[i][j]/pages;
 					avgImage[i][j] += f[i][j]/pages;
 					maxAvg = (int) Math.max(maxAvg, curBuilderImage[i][j]*curBuilderImage[i][j]*opts.maxValueDat);
+					maxImage[i][j] = Math.max(maxImage[i][j], f[i][j]);
 				}
 			}
 			imgProcessor.setFloatArray(f);
@@ -168,6 +185,14 @@ class ImageDealer {
 	public void setConstrast(int contrast) {
 		this.contrast = contrast;
 	}
+	
+	public void setConstrastl(int contrast) {
+		this.contrastl = contrast;
+	}
+	
+	public void setConstrastr(int contrast) {
+		this.contrastr = contrast;
+	}
 	public void setArea(Point dragStartScreen, Point dragEndScreen) {
 		startPoint = dragStartScreen;
 		endPoint = dragEndScreen;
@@ -177,7 +202,7 @@ class ImageDealer {
 		regionMarkLst = imageLabel.getList1();
 		landMarkLst = imageLabel.getList2();
 	}
-	public void setTwoLabels (JLabel left, JLabel right) {
+	public void setTwoLabels (MyImageLabel left, MyImageLabel right) {
 		leftImageLabel = left;
 		rightImageLabel = right;
 	}
@@ -195,6 +220,7 @@ class ImageDealer {
 		this.window = window;
 	}
 	public void setPage(int page) {
+		curFrame = page;
 		imgPlus.setPosition(page+1);
 	}
 	public void setSignalProcessingParameters(float thrArscl, float sigma, int minSize) {
@@ -300,32 +326,108 @@ class ImageDealer {
 	}	
 	public void dealImage() {
 		if(status) {
-			BufferedImage result = dealRaw();
+			BufferedImage result = null;
+			if(gaussStatus)
+				result = dealGauss(contrast);
+			else
+				result = dealRaw(contrast);
+			
 			if(drawRegion)
 				result = addColor(result);
 			
 			if(imageLabel!=null) {
 				imageLabel.setIcon(new ImageIcon(result.getScaledInstance(maxImageWidth, maxImageHeight, Image.SCALE_DEFAULT)));
+				imageLabel.repaint();
 			}
 		}else {
-			BufferedImage leftResult = dealRaw();	// method will change
-			BufferedImage rightResult = dealRaw();
-			
-			if(center.leftJCB.getSelectedIndex()==1)
-				leftResult = addColor(leftResult);
-			
-			if(center.rightJCB.getSelectedIndex()==1)
-				rightResult = addColor(rightResult);
-			
-			// Size
+				// method will change
 			leftImageLabel = center.leftImageLabel;
 			rightImageLabel = center.rightImageLabel;
-
-			leftImageLabel.setIcon(new ImageIcon(leftResult.getScaledInstance(sw, sh, Image.SCALE_DEFAULT)));
-			rightImageLabel.setIcon(new ImageIcon(rightResult.getScaledInstance(sw, sh, Image.SCALE_DEFAULT)));
+			leftImageLabel.setDrawBorder(true);
+			rightImageLabel.setDrawBorder(true);
+			center.colorbarleft.drawColor = false;
+			center.colorbarright.drawColor = false;
+			BufferedImage leftResult = null;
+			BufferedImage rightResult = null;
+			switch(center.leftJCB.getSelectedIndex()){
+				case 0: 
+					if(gaussStatus)
+						leftResult = dealGauss(contrastl);
+					else
+						leftResult = dealRaw(contrastl);
+					leftImageLabel.setDrawBorder(false);
+					break;
+				case 1:
+					if(gaussStatus)
+						leftResult = dealGauss(contrastl);
+					else
+						leftResult = dealRaw(contrastl);
+					leftResult = addColor(leftResult);
+					break;
+				case 2:
+					if(left.jTPStatus>=6) {
+						leftImageLabel.setDrawBorder(false);
+						leftResult = dealRisingMap(center.colorbarleft);
+						center.colorbarleft.drawColor = true;
+						
+					}
+					break;
+				case 3:
+					leftResult = dealRaw(maxImage,contrastl);
+					break;
+				case 4:
+					if(left.jTPStatus>=1) {
+						leftResult = dealDF(contrastl);
+					}
+					break;
+			}
+			switch(center.rightJCB.getSelectedIndex()){
+				case 0: 
+					if(gaussStatus)
+						rightResult = dealGauss(contrastr);
+					else
+						rightResult = dealRaw(contrastr);
+					rightImageLabel.setDrawBorder(false);
+					break;
+				case 1:
+					if(gaussStatus)
+						rightResult = dealGauss(contrastr);
+					else
+						rightResult = dealRaw(contrastr);
+					rightResult = addColor(rightResult);
+					break;
+				case 2:
+					if(left.jTPStatus>=6) {
+						rightImageLabel.setDrawBorder(false);
+						rightResult = dealRisingMap(center.colorbarright);
+						center.colorbarright.drawColor = true;
+					}
+					break;
+				case 3:
+					rightResult = dealRaw(maxImage,contrastr);
+					break;
+				case 4:
+					if(left.jTPStatus>=1) {
+						rightResult = dealDF(contrastr);
+					}
+					break;
+			}
+			center.colorbarleft.repaint();
+			center.colorbarright.repaint();
+			
+			// Size
+			
+			if(leftResult!=null) {
+				leftImageLabel.setIcon(new ImageIcon(leftResult.getScaledInstance(sw, sh, Image.SCALE_DEFAULT)));
+				leftImageLabel.repaint();
+			}
+			if(rightResult!=null) {
+				rightImageLabel.setIcon(new ImageIcon(rightResult.getScaledInstance(sw, sh, Image.SCALE_DEFAULT)));
+				rightImageLabel.repaint();
+			}
 		}
 	}
-	private BufferedImage dealRaw() {
+	private BufferedImage dealRaw(int contrast) {
 		BufferedImage origImage = imgPlus.getBufferedImage();
 		adjustPoint(origImage);
 		
@@ -343,6 +445,221 @@ class ImageDealer {
 		for(int i=startX;i<endX;i++) {
 			for(int j=startY;j<endY;j++) {
 				float gray = imgProcessor.getf(i, j);
+				gray = gray*gray*opts.maxValueDat;
+				if (gray >= max) {
+	                prod.setRGB(i - startX, j - startY, new Color(255, 255, 255, 255).getRGB());
+				}else if(gray <= min) {
+	                prod.setRGB(i - startX, j - startY, new Color(0, 0, 0, 255).getRGB());
+	            }else {
+	                gray = (float)((gray - min) * 255/(max - min));
+	                prod.setRGB(i - startX, j - startY, new Color((int)gray, (int)gray, (int)gray, 255).getRGB());
+				}
+			}
+		}
+		
+		float cont = (float)contrast / 100;
+		RescaleOp rescaleOp = new RescaleOp(cont, 1.0f, null);
+		BufferedImage result = rescaleOp.filter(prod, null);
+		return result;
+	}
+	
+	private BufferedImage dealRisingMap(ColorLabel2 colorbar) {
+		BufferedImage origImage = imgPlus.getBufferedImage();
+		adjustPoint(origImage);
+		
+		int w = width;
+		int h = height;
+		
+		int startX = (int)(startPoint.getX());
+		int startY = (int)(startPoint.getY());
+		int endX = (int)(endPoint.getX());
+		int endY = (int)(endPoint.getY());
+
+		BufferedImage prod = new BufferedImage(endX - startX, endY - startY, BufferedImage.TYPE_3BYTE_BGR);
+		
+		float[][] riseMapCol = new float[w][h];
+		for(int x=0;x<w;x++) {
+			for(int y=0;y<h;y++) {
+				riseMapCol[x][y] = -1;
+			}
+		}
+		
+		for(int label:featureTableList) {
+			if(fts.loc.t0.get(label)<=curFrame && fts.loc.t1.get(label)>=curFrame) {
+				RiseNode rr = riseLst.get(label);
+				for(int x=rr.rgws;x<=rr.rgwe;x++) {
+					for(int y=rr.rghs;y<=rr.rghe;y++) {
+						riseMapCol[x][y] = Math.max(riseMapCol[x][y], rr.dlyMap[x-rr.rgws][y-rr.rghs]);
+					}
+				}
+			}
+		}
+		
+		float minV = Float.MAX_VALUE;
+		float maxV = -1;
+		
+		for(int x=0;x<w;x++) {
+			for(int y=0;y<h;y++) {
+				float v = riseMapCol[x][y];
+				if(v!=-1) {
+					minV = Math.min(v, minV);
+					maxV = Math.max(v, maxV);
+				}
+			}
+		}
+		
+		colorbar.setText(" ");
+		if(maxV!=-1) {
+			String v1 = String.format("%.1f", minV);
+			String v2 = String.format("%.1f", (minV+maxV)/2);
+			String v3 = String.format("%.1f", maxV);
+			String blank = "                                                   ";
+			colorbar.setText(v1 + blank + v2 + blank + v3);
+		}
+		
+		for(int i=startX;i<endX;i++) {
+			for(int j=startY;j<endY;j++) {
+				float gray = riseMapCol[i][j];
+				if(gray<0) {
+					prod.setRGB(i - startX, j - startY, new Color(255, 255, 255, 255).getRGB());
+				}else {
+//					cStart = new Color(255,0,0); cEnd = new Color(0,0,255); cMid = new Color(255,255,0); break;
+					gray = (gray-minV)/(maxV - minV);
+					int red = 0;
+					int green = 0;
+					int blue = 0;
+					
+					// red
+					if(gray<0.375f) 
+						red = 0;
+					else if(gray<0.625f)
+							red = Math.round((gray-0.375f)*1020);
+					else if(gray<0.875f)
+							red = 255;
+					else
+							red = 255 - Math.round(1020*(gray-0.875f));
+
+					// green
+					if(gray<0.125f) 
+						green = 0;
+					else if(gray<0.375f)
+						green = Math.round((gray-0.125f)*1020);
+					else if(gray<0.625f)
+						green = 255;
+					else if(gray<0.875f)
+						green = 255 - Math.round(1020*(gray-0.625f));
+					else 
+						green = 0;
+						
+					// blue
+					if(gray<0.125f)
+						blue = 127 + Math.round(gray*1020);
+					else if(gray<0.375f)
+						blue = 255;
+					else if(gray<0.625f)
+						blue = 255 - Math.round(1020*(gray-0.375f));
+					else
+						blue = 0;
+					
+					prod.setRGB(i - startX, j - startY, new Color(red, green, blue, 255).getRGB());
+			
+				}
+			}
+		}
+		
+		return prod;
+	}
+	
+	private BufferedImage dealGauss(int contrast) {
+		BufferedImage origImage = imgPlus.getBufferedImage();
+		adjustPoint(origImage);
+		
+		int w = width;
+		int h = height;
+		int k = curFrame;
+		int startX = (int)(startPoint.getX());
+		int startY = (int)(startPoint.getY());
+		int endX = (int)(endPoint.getX());
+		int endY = (int)(endPoint.getY());
+
+//		System.out.println(startX + " " + startY + " " + endX + " " + endY);
+		BufferedImage prod = new BufferedImage(endX - startX, endY - startY, BufferedImage.TYPE_3BYTE_BGR);
+
+		for(int i=startX;i<endX;i++) {
+			for(int j=startY;j<endY;j++) {
+				float gray = dat[i][j][k];
+				gray = gray*gray*opts.maxValueDat;
+				if (gray >= max) {
+	                prod.setRGB(i - startX, j - startY, new Color(255, 255, 255, 255).getRGB());
+				}else if(gray <= min) {
+	                prod.setRGB(i - startX, j - startY, new Color(0, 0, 0, 255).getRGB());
+	            }else {
+	                gray = (float)((gray - min) * 255/(max - min));
+	                prod.setRGB(i - startX, j - startY, new Color((int)gray, (int)gray, (int)gray, 255).getRGB());
+				}
+			}
+		}
+		
+		float cont = (float)contrast / 100;
+		RescaleOp rescaleOp = new RescaleOp(cont, 1.0f, null);
+		BufferedImage result = rescaleOp.filter(prod, null);
+		return result;
+	}
+	
+	private BufferedImage dealDF(int contrast) {
+		BufferedImage origImage = imgPlus.getBufferedImage();
+		adjustPoint(origImage);
+		
+		int w = width;
+		int h = height;
+		int k = curFrame;
+		int startX = (int)(startPoint.getX());
+		int startY = (int)(startPoint.getY());
+		int endX = (int)(endPoint.getX());
+		int endY = (int)(endPoint.getY());
+
+//		System.out.println(startX + " " + startY + " " + endX + " " + endY);
+		BufferedImage prod = new BufferedImage(endX - startX, endY - startY, BufferedImage.TYPE_3BYTE_BGR);
+
+		for(int i=startX;i<endX;i++) {
+			for(int j=startY;j<endY;j++) {
+				float gray = dF[i][j][k];
+				gray = gray*gray*opts.maxValueDat;
+				if (gray >= max) {
+	                prod.setRGB(i - startX, j - startY, new Color(255, 255, 255, 255).getRGB());
+				}else if(gray <= min) {
+	                prod.setRGB(i - startX, j - startY, new Color(0, 0, 0, 255).getRGB());
+	            }else {
+	                gray = (float)((gray - min) * 255/(max - min));
+	                prod.setRGB(i - startX, j - startY, new Color((int)gray, (int)gray, (int)gray, 255).getRGB());
+				}
+			}
+		}
+		
+		float cont = (float)contrast / 100;
+		RescaleOp rescaleOp = new RescaleOp(cont, 1.0f, null);
+		BufferedImage result = rescaleOp.filter(prod, null);
+		return result;
+	}
+	
+	private BufferedImage dealRaw(float[][] image, int contrast) {
+		BufferedImage origImage = imgPlus.getBufferedImage();
+		adjustPoint(origImage);
+		
+		int w = width;
+		int h = height;
+		
+		int startX = (int)(startPoint.getX());
+		int startY = (int)(startPoint.getY());
+		int endX = (int)(endPoint.getX());
+		int endY = (int)(endPoint.getY());
+
+//		System.out.println(startX + " " + startY + " " + endX + " " + endY);
+		BufferedImage prod = new BufferedImage(endX - startX, endY - startY, BufferedImage.TYPE_3BYTE_BGR);
+
+		for(int i=startX;i<endX;i++) {
+			for(int j=startY;j<endY;j++) {
+				float gray = image[i][j];
 				gray = gray*gray*opts.maxValueDat;
 				if (gray >= max) {
 	                prod.setRGB(i - startX, j - startY, new Color(255, 255, 255, 255).getRGB());
@@ -413,7 +730,7 @@ class ImageDealer {
 			for(int j=startY;j<endY;j++) {
 				int k = imgPlus.getCurrentSlice()-1;
 				if(label[i][j][k]!=0) {
-					if(deleteColorSet.contains(label[i][j][k])){
+					if(deleteColorSet.contains(label[i][j][k]) || deleteColorSet2.contains(label[i][j][k])){
 						continue;
 					}
 					Color curColor = labelColors[label[i][j][k]-1];
@@ -559,6 +876,44 @@ class ImageDealer {
         });
 	}
 	
+	public void exportOpts(String savePath) {
+		ImageDealer dealer = this;
+		
+		EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                	Aqua_OutPutOpts task = new Aqua_OutPutOpts(dealer,savePath);
+//                	task.doInBackground();
+            		task.setting();
+            		task.execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+        		
+            }
+        });
+		
+	}
+
+	public void loadOpts(String savePath) {
+		ImageDealer dealer = this;
+		
+		EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                	Aqua_LoadOpts task = new Aqua_LoadOpts(dealer,savePath);
+//                	task.doInBackground();
+            		task.setting();
+            		task.execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+        		
+            }
+        });
+	}
+
+	
 	public void setCurveLabel(DrawCurveLabel resultsLabel) {
 		curveLabel = resultsLabel;
 		
@@ -587,7 +942,7 @@ class ImageDealer {
 			float duration = fts.curve.width55.get(nEvt);
 			float dffMax = fts.curve.dffMax.get(nEvt);
 			float tau = fts.curve.decayTau.get(nEvt); 
-			right.model.addRow(new Object[] {new Integer(rowNumber+1),new Boolean(false),new Integer(nEvt),new Integer(frame),new Float(size),new Float(duration),new Float(dffMax),new Float(tau)});
+			right.model.addRow(new Object[] {new Integer(rowNumber+1),new Boolean(false),new Integer(nEvt),new Integer(frame+1),new Float(size),new Float(duration),new Float(dffMax),new Float(tau)});
 		}
 	}
 	
@@ -611,9 +966,9 @@ class ImageDealer {
 					return;
 			}
 			
-			
+			featureTableList.add(nEvt);
 			int frame = fts.curve.tBegin.get(nEvt);
-			center.imageSlider.setValue(frame+1);
+			center.imageSlider.setValue(frame);
 			float size = fts.basic.area.get(nEvt);
 			float duration = fts.curve.width55.get(nEvt);
 			float dffMax = fts.curve.dffMax.get(nEvt);
@@ -782,6 +1137,53 @@ class ImageDealer {
         });
 		
 	}
+	
+	
+
+	public void runAllSteps() {
+		ImageDealer dealer = this;
+		EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                	ExecutorService executor = Executors.newSingleThreadExecutor();
+                	ProgressBarRealizedStep1 task1 = new ProgressBarRealizedStep1(dealer);
+            		task1.setting();
+            		executor.submit(task1);
+            		
+            		ProgressBarRealizedStep2 task2 = new ProgressBarRealizedStep2(dealer);
+                	task2.setting();
+                	executor.submit(task2);
+                	
+            		ProgressBarRealizedStep3 task3 = new ProgressBarRealizedStep3(dealer);
+                	task3.setting();
+                	executor.submit(task3);
+            		
+            		ProgressBarRealizedStep4 task4 = new ProgressBarRealizedStep4(dealer);
+                	task4.setting();
+                	executor.submit(task4);
+                	
+            		ProgressBarRealizedStep5 task5 = new ProgressBarRealizedStep5(dealer);
+                	task5.setting();
+                	executor.submit(task5);
+                	
+                	ProgressBarRealizedStep6 task6 = new ProgressBarRealizedStep6(dealer);
+            		task6.setting();
+            		executor.submit(task6);
+            		
+            		ProgressBarRealizedStep7 task7 = new ProgressBarRealizedStep7(dealer);
+                	task7.setting();
+                	executor.submit(task7);
+
+            		executor.shutdown();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+        		
+            }
+        });
+	}
+
+	
 	
 	
 }

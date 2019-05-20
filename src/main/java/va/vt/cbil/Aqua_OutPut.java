@@ -100,7 +100,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		
 		PrintWriter pw = null;
 		try {
-			pw = new PrintWriter(new File(savePath + "\\Auqa_Output_Excel.csv"));
+			pw = new PrintWriter(new File(savePath + "\\Aqua_Output_Excel.csv"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -815,7 +815,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		}
 		
 		try {
-			FileOutputStream output = new FileOutputStream(savePath + "\\Auqa_Output_Excel.xlsx");
+			FileOutputStream output = new FileOutputStream(savePath + "\\Aqua_Output_Excel.xlsx");
 			wb.write(output);
 			output.flush();
 		} catch (FileNotFoundException e) {
@@ -833,6 +833,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		if(eventsExtract) {
 			publish(1);
 			getFeaTureTable();
+			getCurveOutput();
 		}
 		if(movieExtract) {
 			publish(2);
@@ -841,9 +842,76 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		return null;
 	} 
 	
+	private void getCurveOutput() {
+		FtsLst fts = imageDealer.fts;
+		Opts opts = imageDealer.opts;
+		
+		System.out.println("Finish read");
+		
+		
+		int nEvt = 10000;
+		if(fts!=null)
+			nEvt = fts.basic.area.size();
+		
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(new File(savePath + "\\Aqua_Curve_Output.csv"));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		float[][][] dffMat = imageDealer.dffMat;
+		int T = dffMat[0].length;
+		
+        StringBuilder sb = new StringBuilder();
+        // Title
+        sb.append("Event Index");
+        sb.append(',');
+        sb.append("Start Frame");
+        sb.append(',');
+        sb.append("End Frame");
+        sb.append(',');
+        for(int t=0;t<T;t++) {
+        	sb.append("Frame " + (t+1));
+            sb.append(',');
+        }
+        sb.append('\n');
+        
+        for(int i=0;i<nEvt;i++) {
+        	sb.append("Event " + (i+1));
+            sb.append(',');
+            sb.append(imageDealer.fts.curve.tBegin.get(i+1)+1);
+            sb.append(',');
+            sb.append(imageDealer.fts.curve.tEnd.get(i+1)+1);
+            sb.append(',');
+            
+            float min = Float.MAX_VALUE;
+			float max = -Float.MAX_VALUE;
+			for(int t = 0;t<T;t++) {
+				min = Math.min(min, dffMat[i][t][1]);
+				max = Math.max(max, dffMat[i][t][1]);
+			}	
+			
+			float[] curve = new float[T];
+
+			for(int t = 0;t<T;t++) {
+				curve[t] = (dffMat[i][t][1] - min)/(max-min);
+				sb.append(curve[t]);
+                sb.append(',');
+			}
+            sb.append('\n');
+        }
+        
+        pw.write(sb.toString());
+        pw.close();
+        System.out.println("done!");
+        
+		
+	}
+
 	private void exportMovie() {
 		// TODO Auto-generated method stub
-		System.out.println(savePath + "\\Auqa_Output_Movie");
+		System.out.println(savePath + "\\Aqua_Output_Movie");
 		ImagePlus img = new ImagePlus(orgPath);
 		ImageConverter converter = new ImageConverter(img);
 		converter.convertToGray8();
@@ -879,7 +947,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 			}
 		}
 		FileSaver fs = new FileSaver(img);
-		fs.saveAsTiff(savePath + "\\Auqa_Output_Movie.tif");
+		fs.saveAsTiff(savePath + "\\Aqua_Output_Movie.tif");
 
 	}
 

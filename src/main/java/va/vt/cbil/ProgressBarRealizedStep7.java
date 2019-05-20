@@ -67,6 +67,7 @@ public class ProgressBarRealizedStep7 extends SwingWorker<Step7Result, Integer> 
 	public ProgressBarRealizedStep7(ImageDealer imageDealer) {
 		this.imageDealer = imageDealer;
 		proPath = imageDealer.proPath;
+		imageDealer.running = true;
 	}
 	
 	public ProgressBarRealizedStep7() {
@@ -144,7 +145,7 @@ public class ProgressBarRealizedStep7 extends SwingWorker<Step7Result, Integer> 
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-		JOptionPane.showMessageDialog(null, "Step7 Finish!");
+//		JOptionPane.showMessageDialog(null, "Step7 Finish!");
 		imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 7);
 		imageDealer.left.nextButton.setEnabled(false);
 		imageDealer.left.backButton.setEnabled(true);
@@ -152,6 +153,15 @@ public class ProgressBarRealizedStep7 extends SwingWorker<Step7Result, Integer> 
 		imageDealer.left.left4.setVisible(true);
 		imageDealer.right.allFinished();
 		imageDealer.left.updateFeatures.setEnabled(true);
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				imageDealer.dealImage();
+				imageDealer.imageLabel.repaint();
+			}
+			
+		}).start();
 		imageDealer.left.tableValueSetting(minArea,maxArea,minPvalue,maxPvalue,minDecayTau,maxDecayTau,minDuration,maxDuration,mindffMax,maxdffMax);
 		float[] featureTable = new float[] {minArea,maxArea,minPvalue,maxPvalue,minDecayTau,maxDecayTau,minDuration,maxDuration,mindffMax,maxdffMax};
 		imageDealer.saveStatus();
@@ -167,6 +177,7 @@ public class ProgressBarRealizedStep7 extends SwingWorker<Step7Result, Integer> 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		imageDealer.running = false;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -39,6 +39,20 @@ import ij.ImagePlus;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
+/**
+ * The third and the most important step of the whole software, to
+ * detect the events. Find the super event first, then split it into
+ * several events.Then according to the events detected, extract 
+ * premiliary features. After this step finish, we show them in 
+ * interface with different colors. 
+ * 
+ * @author Xuelong Mi
+ * @version 1.0
+ */
+/**
+ * @author Xuelong Mi
+ *
+ */
 public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 	JFrame frame = new JFrame("Step3");
 	JPanel curPanel = new JPanel();
@@ -52,14 +66,24 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 	static ImageDealer imageDealer = null;
 	String proPath = null;
 	
+	/**
+	 * Construct the class by imageDealer. 
+	 * 
+	 * @param imageDealer used to read the parameter
+	 */
 	@SuppressWarnings("static-access")
 	public ProgressBarRealizedStep3(ImageDealer imageDealer) {
 		this.imageDealer = imageDealer;
 		proPath = imageDealer.proPath;
 		if(imageDealer!=null)
 			image = imageDealer.imgPlus;
+		imageDealer.running = true;
 	}
 	
+	
+	/**
+	 * Set the Jframe and its content, used to show the progress bar.
+	 */
 	protected void setting() {
 		frame.setSize(400, 200);
 		frame.setLocationRelativeTo(null);
@@ -82,6 +106,11 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		
 	}
 	
+	/**
+	 * Detect the events
+	 * 
+	 * @return return the labels of different events
+	 */
 	@Override
 	protected int[][][] doInBackground() throws Exception {
 
@@ -187,6 +216,25 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		HashMap<Integer,ArrayList<int[]>> seLst = evtTopresult.seLst;
 		int[][][] datR = evtTopresult.datR;
 		
+		// relabel
+		HashMap<Integer,ArrayList<int[]>> newEvtLst = new HashMap<>();
+		HashMap<Integer,RiseNode> newRiseLst = new HashMap<>();
+		int cnt = 1;
+		int maxLabel = 0;
+		for(Entry<Integer, ArrayList<int[]>> entry : evtLst.entrySet()) {
+			maxLabel = Math.max(entry.getKey(), maxLabel);
+		}
+		for(int i=1;i<=maxLabel;i++) {
+			ArrayList<int[]> points = evtLst.get(i);
+			if(points!=null) {
+				newEvtLst.put(cnt, points);
+				newRiseLst.put(cnt, riseLst.get(i));
+				cnt++;
+			}
+		}
+		evtLst = newEvtLst;
+		riseLst = newRiseLst;
+				
 		try {
 			FileOutputStream f = null;
 			ObjectOutputStream o = null;
@@ -232,7 +280,7 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		FtsLst ftsLst = quickFeatureResult.ftsLst;
 		float[][] dffMat = quickFeatureResult.dffMatExt;
 		int[][][] evtMap = quickFeatureResult.evtMap;
-		
+		int nEvt = evtLst.size();
 		publish(4);
 		try {
 			FileOutputStream f = null;
@@ -258,6 +306,12 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 			o.close();
 			f.close();
 			
+			f = new FileOutputStream(new File(proPath + "nEvt.ser"));
+			o = new ObjectOutputStream(f);
+			o.writeObject(nEvt);
+			o.close();
+			f.close();
+			
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -280,10 +334,24 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		end = System.currentTimeMillis();
 		System.out.println("Total time" + (end-start0) + "ms");
 		
+		imageDealer.center.EvtNumber.setText(nEvt+"");
+		
 		return evtMap;
 		
 	}
 	
+	
+	/**
+	 * Extract events
+	 * 
+	 * @param dat the data matrix
+	 * @param dF the data matrix after subtract the background
+	 * @param lblxMap the super voxels map
+	 * @param riseX the rising time of each super voxel
+	 * @param opts the parameter
+	 * @param lblMapS the label matrix of super voxels
+	 * @return the event label matrix and brightness
+	 */
 	private static EvtTopResult evtTop(float[][][] dat, float[][][] dF, HashMap<Integer, ArrayList<int[]>> lblxMap, int[][] riseX,
 			Opts opts, int[][][] lblMapS) {
 		int width = dat.length;									// checked
@@ -414,6 +482,10 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return new EvtTopResult(riseLst,datR, evtLst, seLst,datL);
 	}
 	
+	/**
+	 * @author Xuelong Mi
+	 * Use to transmit results
+	 */
 	static class EvtTopResult{
 		HashMap<Integer,RiseNode> riseLst = null;
 		int[][][] datR = null;
@@ -431,6 +503,22 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		}
 	}
 	
+	/**
+	 * Record the features of each event
+	 * @param riseLst where we record
+	 * @param evtMap the event map
+	 * @param dlyMap the delay Map
+	 * @param nEvt the current number index of events
+	 * @param nEvt0 the number of events
+	 * @param rghs 
+	 * @param rghe
+	 * @param rgws
+	 * @param rgwe
+	 * @param rgts
+	 * @param rgte
+	 * @param rgtSels
+	 * @param rgtSele
+	 */
 	public static void addToRisingMap(HashMap<Integer, RiseNode> riseLst, int[][] evtMap, float[][] dlyMap, int nEvt,
 			int nEvt0, int rghs, int rghe, int rgws, int rgwe, int rgts, int rgte, int rgtSels, int rgtSele) {
 		for(int i=1;i<=nEvt0;i++) {
@@ -468,10 +556,11 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		
 	}
 
+	/**
+	 * @author Xuelong Mi
+	 * To transmit the results
+	 */
 	static class RiseNode implements Serializable{
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 1L;
 		float[][] dlyMap = null;
 		int rgws = 0;
@@ -492,6 +581,25 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		}
 	}
 	
+	/**
+	 * To split the super events
+	 * @param dF the data matrix after subtract the background
+	 * @param seMap the super event map
+	 * @param seSel the current super event index
+	 * @param ihw0 the 2D point 
+	 * @param rgws
+	 * @param rgwe
+	 * @param rghs
+	 * @param rghe
+	 * @param rgts
+	 * @param rgte
+	 * @param it0s
+	 * @param it0e
+	 * @param pages
+	 * @param opts
+	 * @param changeParameter
+	 * @return
+	 */
 	public static SeToEvent se2evt(float[][][] dF, int[][][] seMap, int seSel, HashSet<Integer> ihw0, int rgws, int rgwe,
 			int rghs, int rghe, int rgts, int rgte, int it0s, int it0e, int pages, Opts opts, int changeParameter) {
 		float gtwSmo = opts.gtwSmo;		// 0.5
@@ -692,6 +800,10 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return new SeToEvent(evtRecon, evtL, evtMap, dlyMap, nEvt0, it0s, it0e, rgtSels, rgtSele);
 	}
 	
+	/**
+	 * @author Xuelong Mi
+	 * To transmit the results
+	 */
 	static class SeToEvent{
 		float[][][] evtRecon = null;
 		int[][][] evtL = null;
@@ -716,6 +828,11 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		}
 	}
 
+	/**
+	 * copy matrix
+	 * @param input the input matirx
+	 * @return
+	 */
 	public static float[][] copyMap(float[][] input){
 		int width = input.length;
 		int height = input[0].length;
@@ -728,6 +845,16 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return result;
 	}
 	
+	/**
+	 * According to the delay map and super pixel, combine close super pixels to events
+	 * @param spLst the super pixel list/map
+	 * @param dlyMap the delay map
+	 * @param distMat the distance map of super pixels
+	 * @param maxRiseUnc the maximum rising phase uncertainty
+	 * @param cDelay the slowest propagation
+	 * @param stg the flag
+	 * @return
+	 */
 	public static RiseMapResult riseMap2evt(HashMap<Integer, ArrayList<int[]>> spLst, float[][] dlyMap, float[][] distMat,
 			int maxRiseUnc, int cDelay, boolean stg) {
 		int nSp = spLst.size();
@@ -1062,6 +1189,10 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return new RiseMapResult(evtMap,evtMemC,evtMemCMap);
 	}
 	
+	/**
+	 * @author Xuelong Mi
+	 * To transmit the results
+	 */
 	static class RiseMapResult{
 		int[][] evtMap;
 		int[] evtMemC;
@@ -1073,6 +1204,14 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		}
 	}
 
+	/**
+	 * grow seed, find continuous regions
+	 * @param spEvt array to show the event which super pixels belong to
+	 * @param distMat the distance map of super pixels
+	 * @param cDelay the slowest propagation
+	 * @param spMap the super pixels map
+	 * @return
+	 */
 	private static EvtGrowResult evtGrowLm1(int[] spEvt, float[][] distMat, int cDelay, int[][] spMap) {
 		int nSp = spEvt.length;								// checked
 		int nSeed = Integer.MIN_VALUE;
@@ -1227,6 +1366,10 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return new EvtGrowResult(evtMem,evtMemC);
 	}
 
+	/**
+	 * @author Xuelong Mi
+	 * To transmit the results
+	 */
 	static class EvtGrowResult{
 		int[] evtMem;
 		int[] evtMemC;
@@ -1237,6 +1380,11 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		}
 	}
 	
+	/**
+	 * To get the connected component of the boolean matrix
+	 * @param b
+	 * @return
+	 */
 	private static HashMap<Integer, ArrayList<Integer>> graphComponent(boolean[][] b) {
 		HashMap<Integer, ArrayList<Integer>> cc = new HashMap<>();
 		boolean[] marked = new boolean[b.length];
@@ -1253,6 +1401,13 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return cc;
 	}
 
+	/**
+	 * DFS
+	 * @param b
+	 * @param i
+	 * @param marked
+	 * @return
+	 */
 	private static ArrayList<Integer> dfs(boolean[][] b, int i, boolean[] marked) {
 		ArrayList<Integer> l = new ArrayList<>();
 		Queue<Integer> q = new LinkedList<>();
@@ -1271,6 +1426,13 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return l;
 	}
 
+	/**
+	 * Assign neighbor super pixels to event seeds
+	 * @param spEvt array to show which event the super pixel belongs to
+	 * @param distMat the distance map of super pixels
+	 * @param rise0 the rising time array
+	 * @param spMap the super pixels map
+	 */
 	private static void evtGrowLm(int[] spEvt, float[][] distMat, float[] rise0, int[][] spMap) {
 		HashSet<Integer> spVec0 = new HashSet<>();
 		for(int element:spEvt) {							// checked
@@ -1455,6 +1617,12 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		
 	}
 
+	/**
+	 * shuffle the input array, the shuffle range is between n0 and n1.
+	 * @param spOrd
+	 * @param n0
+	 * @param n1
+	 */
 	private static void shuffle(int[] spOrd, int n0, int n1) {
 		Random rv = new Random();
 		int len = n1-n0 + 1;
@@ -1469,6 +1637,16 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		
 	}
 
+	/**
+	 * Merge the super pixels to events
+	 * @param lblMapSO
+	 * @param riseMap
+	 * @param maxRiseDly1
+	 * @param maxRiseDly2
+	 * @param minOverRate
+	 * @param dat
+	 * @return
+	 */
 	private static int[][][] sp2evtStp1(int[][][] lblMapSO, int[][][] riseMap, int maxRiseDly1, int maxRiseDly2, float minOverRate, float[][][] dat) {
 		int width = lblMapSO.length;
 		int height = lblMapSO[0].length;
@@ -1710,6 +1888,10 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return lblMapS;
 	}
 		
+	/**
+	 * @author Xuelong Mi
+	 * To transmit results
+	 */
 	static class RiseXX{
 		int key;
 		float value;
@@ -1719,6 +1901,13 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		}
 	}
 
+	/**
+	 * Transfer super voxels to super events
+	 * @param lblMapS
+	 * @param spVoxLst
+	 * @param svNeibResult
+	 * @return
+	 */
 	private static int[][][] sv2se(int[][][] lblMapS, HashMap<Integer, ArrayList<int[]>> spVoxLst, SvNeibResult svNeibResult) {
 		HashMap<Integer, HashSet<Integer>> neibLst = svNeibResult.neibLst;
 		HashMap<Integer, HashSet<Integer>> exldLst = svNeibResult.exldLst;
@@ -1972,6 +2161,15 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		
 	}
 
+	/**
+	 * Get the neighbor list of super pixels
+	 * @param lblMapS
+	 * @param spVoxLst
+	 * @param riseMap
+	 * @param maxRiseDly
+	 * @param minOverRate
+	 * @return
+	 */
 	private static SvNeibResult svNeib(int[][][] lblMapS, HashMap<Integer, ArrayList<int[]>> spVoxLst, int[][][] riseMap, int maxRiseDly, float minOverRate) {
 		int nSp = spVoxLst.size();							// checked
 		int width = lblMapS.length;
@@ -2060,6 +2258,10 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return result;
 	}
 	
+	/**
+	 * @author Xuelong Mi
+	 * To transmit the results
+	 */
 	static class SvNeibResult{
 		HashMap<Integer, HashSet<Integer>> neibLst = null;
 		HashMap<Integer, HashSet<Integer>> exldLst = null;
@@ -2070,6 +2272,11 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		}
 	}
 
+	/**
+	 * get the median of nan value
+	 * @param riseX
+	 * @return
+	 */
 	private static float[] nanMedian(int[][] riseX) {
 		int nLm = riseX.length;
 		int levels = riseX[0].length;
@@ -2105,6 +2312,11 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return result;
 	}
 
+	/**
+	 * form the location map through label map
+	 * @param labelMap
+	 * @return
+	 */
 	public static HashMap<Integer,ArrayList<int[]>> label2idx(int[][][] labelMap){
 		HashMap<Integer, ArrayList<int[]>> map = new HashMap<>();
 		int width = labelMap.length;
@@ -2130,6 +2342,11 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return map;
 	}
 	
+	/**
+	 * form the location map through label map
+	 * @param labelMap
+	 * @return
+	 */
 	private static HashMap<Integer,ArrayList<int[]>> label2idx(int[][] labelMap){
 		HashMap<Integer, ArrayList<int[]>> map = new HashMap<>();
 		int width = labelMap.length;
@@ -2151,6 +2368,9 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return map;
 	}
 		
+	/** 
+	 * Report the progress.
+	 */
 	protected void process(List<Integer> chunks) {
 		int value = chunks.get(chunks.size()-1);
 		String str = "";
@@ -2172,15 +2392,21 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		jLabel.setText(str);
 	}
 		
+	/** 
+	 * Adjust the interface, save the status, and let the interface show the super voxels
+	 */
 	@Override
 	protected void done() {
 		frame.setVisible(false);
-		JOptionPane.showMessageDialog(null, "Step3 Finish!");
+//		JOptionPane.showMessageDialog(null, "Step3 Finish!");
 		imageDealer.left.nextButton.setEnabled(true);
 		imageDealer.left.backButton.setEnabled(true);
 		imageDealer.left.jTP.setEnabledAt(3, true);
-		imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 3);
-		imageDealer.right.typeJCB.addItem("Step3: Events");
+		
+		if(imageDealer.left.jTPStatus<3) {
+			imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 3);
+			imageDealer.right.typeJCB.addItem("Step3: Events");
+		}
 //		imageDealer.right.typeJCB.setSelectedIndex(3);
 		
 		try {
@@ -2188,18 +2414,37 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-		imageDealer.dealImage();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				imageDealer.dealImage();
+				imageDealer.imageLabel.repaint();
+			}
+			
+		}).start();
 		imageDealer.saveStatus();
+		imageDealer.running = false;
 	}
 	
 
 
+	/**
+	 * show the current time
+	 */
 	static void showTime() {
 		end = System.currentTimeMillis();
 		System.out.println((end-start) + "ms");
 		start = end;
 	}
 	
+	/**
+	 * Get the simple features of events
+	 * @param datOrg orignal data matrix
+	 * @param evtLst event list
+	 * @param opts parameters
+	 * @return
+	 */
 	public static QuickFeatureResult getFeatureQuick(float[][][] datOrg, HashMap<Integer, ArrayList<int[]>> evtLst, Opts opts) {
 		int W = datOrg.length;
 		int H = datOrg[0].length;
@@ -2470,6 +2715,14 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return new QuickFeatureResult(ftsLst, dffMatExt,evtMap);
 	}
 
+	/**
+	 * extend event
+	 * @param dff
+	 * @param sigxOthers
+	 * @param rgts
+	 * @param rgte
+	 * @return
+	 */
 	private static int[] extendEventTimeRangeByCurve(float[] dff, boolean[] sigxOthers, int rgts, int rgte) {
 		int T = dff.length;
 		int t0 = Math.max(rgts-1, 0);
@@ -2526,6 +2779,10 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		return new int[] {t0a,t1a};
 	}
 
+	/**
+	 * impute the input matrix
+	 * @param datx
+	 */
 	public static void imputeMov(float[][][] datx) {
 		int W = datx.length;
 		int H = datx[0].length;
@@ -2563,6 +2820,13 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		}
 	}
 	
+	/**
+	 * Use the fitting method to decrease the influnce of the trend
+	 * @param c0
+	 * @param s0
+	 * @param correctTrend
+	 * @return
+	 */
 	private static float[] curvePolyDeTrend(float[] c0, boolean[] s0, int correctTrend) {
 		if(correctTrend>0) {
 			WeightedObservedPoints obs = new WeightedObservedPoints();

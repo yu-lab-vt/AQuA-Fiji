@@ -23,7 +23,7 @@ public class ShowCurves {
 	
 	public static void showCurves(ArrayList<Integer> indexLst, float[][][] dffMat, FtsLst fts) {
 		JFrame frame = new JFrame("Features for favorite events");
-		frame.setSize(850,550);
+		frame.setSize(850,750);
 		frame.setUndecorated(false);
 		frame.setLocationRelativeTo(null);
 		
@@ -34,7 +34,7 @@ public class ShowCurves {
 		JButton saveCurves = new JButton("SaveCurves") ;
 		pane.add(label);
 		pane.add(saveCurves);
-		pane.setPreferredSize(new Dimension(850,550));
+		pane.setPreferredSize(new Dimension(850,750));
 		label.setOpaque(true);
 		label.setBackground(Color.WHITE);
 		

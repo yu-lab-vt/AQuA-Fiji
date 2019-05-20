@@ -60,6 +60,7 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 	int height = 0;
 	boolean[][] evtSpatialMask = null;
 	String proPath = null;
+	int[][] regionMarkLabel = null;
 	
 	/**
 	 * Construct the class by imageDealer. 
@@ -77,6 +78,8 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 				evtSpatialMask[x][y] = imageDealer.regionMark[x][y];
 			}
 		}
+		regionMarkLabel = imageDealer.regionMarkLabel;
+		imageDealer.running = true;
 	}
 	
 	/**
@@ -319,18 +322,47 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 		int H = lblMap[0].length;
 		int T = lblMap[0][0].length;
 		
-		map = new HashMap<>();
 		
+		map = new HashMap<>();
 		for(int k=0;k<T;k++) {
 			for(int i=0;i<W;i++) {
 				for(int j=0;j<H;j++) {
 					if(!evtSpatialMask[i][j])
 						lblMap[i][j][k] = 0;
+					
 				}
 			}
 		}
 		
-		return label2idx(lblMap);
+		map = label2idx(lblMap);
+		ArrayList<ArrayList<int[]>> mapNew = new ArrayList<>();
+		for(Entry<Integer, ArrayList<int[]>> entry:map.entrySet()) {
+			ArrayList<int[]> points = entry.getValue();
+			HashMap<Integer,Integer> link = new HashMap<>();
+			
+			for(int[] p:points) {
+				int x = p[0];
+				int y = p[1];
+				int cellIndex = regionMarkLabel[x][y];
+				int index = 0;
+				if(!link.keySet().contains(cellIndex)) {
+					index = mapNew.size();
+					link.put(cellIndex, index);
+					mapNew.add(new ArrayList<int[]>());
+				}else {
+					index = link.get(cellIndex);
+				}
+				mapNew.get(index).add(p);
+			}
+		}
+		
+		int cnt = 1;
+		for(ArrayList<int[]> points:mapNew) {
+			map.put(cnt,points);
+			cnt++;
+		}
+		
+		return map;
 	}
 
 	private HashMap<Integer,ArrayList<int[]>> label2idx(int[][][] labelMap){
@@ -388,12 +420,15 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 	@Override
 	protected void done() {
 		frame.setVisible(false);
-		JOptionPane.showMessageDialog(null, "Step2 Finish!");
+//		JOptionPane.showMessageDialog(null, "Step2 Finish!");
 		imageDealer.left.nextButton.setEnabled(true);
 		imageDealer.left.backButton.setEnabled(true);
+		if(imageDealer.left.jTPStatus<2) {
+			imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 2);;
+			imageDealer.right.typeJCB.addItem("Step2: Super Voxels");
+		}
 		imageDealer.left.jTP.setEnabledAt(2, true);
-		imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 2);;
-		imageDealer.right.typeJCB.addItem("Step2: Super Voxels");
+		
 //		imageDealer.right.typeJCB.setSelectedIndex(2);
 		
 		try {
@@ -401,8 +436,17 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-		imageDealer.dealImage();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				imageDealer.dealImage();
+				imageDealer.imageLabel.repaint();
+			}
+			
+		}).start();
 		imageDealer.saveStatus();
+		imageDealer.running = false;
 	}
 	
 	/**

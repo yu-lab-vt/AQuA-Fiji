@@ -43,6 +43,7 @@ public class ProgressBarRealizedStep6 extends SwingWorker<int[][][], Integer> {
 	public ProgressBarRealizedStep6(ImageDealer imageDealer) {
 		this.imageDealer = imageDealer;
 		proPath = imageDealer.proPath;
+		imageDealer.running = true;
 	}
 	
 	protected void setting() {
@@ -132,14 +133,32 @@ public class ProgressBarRealizedStep6 extends SwingWorker<int[][][], Integer> {
 			riseLst = re.riseLst;
 		}
 		
-		for(int i=1;i<=evtLstE.size();i++) {
-			for(int[] p:evtLstE.get(i)) {
-				labels[p[0]][p[1]][p[2]] = i;
-			}
+		int maxLabel = 0;
+		for(Entry<Integer, ArrayList<int[]>> entry : evtLstE.entrySet()) {
+			maxLabel = Math.max(entry.getKey(), maxLabel);
 		}
 		
+		// relabel
+		HashMap<Integer,ArrayList<int[]>> newEvtLst = new HashMap<>();
+		HashMap<Integer,RiseNode> newRiseLst = new HashMap<>();
+		int cnt = 1;
+		for(int i=1;i<=maxLabel;i++) {
+			ArrayList<int[]> points = evtLstE.get(i);
+			if(points!=null) {
+				newEvtLst.put(cnt, points);
+				newRiseLst.put(cnt, riseLst.get(i));
+				for(int[] p:points) {
+					labels[p[0]][p[1]][p[2]] = cnt;
+				}
+				cnt++;
+			}
+		}
+		evtLstE = newEvtLst;
+		riseLst = newRiseLst;
+	
+		
 		imageDealer.datR = datR;
-			
+		int nEvt = evtLstE.size();
 		publish(3);
 		try {
 			FileOutputStream f = null;
@@ -171,13 +190,19 @@ public class ProgressBarRealizedStep6 extends SwingWorker<int[][][], Integer> {
 			o.writeObject(riseLst);
 			o.close();
 			f.close();
+			
+			f = new FileOutputStream(new File(proPath + "nEvt.ser"));
+			o = new ObjectOutputStream(f);
+			o.writeObject(nEvt);
+			o.close();
+			f.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		
+		imageDealer.center.EvtNumber.setText(nEvt+"");
 		
 		return labels;
 	}
@@ -205,6 +230,23 @@ public class ProgressBarRealizedStep6 extends SwingWorker<int[][][], Integer> {
 			seLst = re.map;
 		}
 		
+//		//TODO: delete
+//		try {
+//			FileOutputStream f = null;
+//			ObjectOutputStream o = null;
+//			
+//			f = new FileOutputStream(new File("D:\\TestFolder\\" + "seMap2.ser"));
+//			o = new ObjectOutputStream(f);
+//			o.writeObject(seMap);
+//			o.close();
+//			f.close();
+//			
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		
 		// super event to events
 		System.out.println("Detecting events");
 		HashMap<Integer,RiseNode> riseLst = new HashMap<>();
@@ -216,6 +258,12 @@ public class ProgressBarRealizedStep6 extends SwingWorker<int[][][], Integer> {
 			ArrayList<int[]> se0 = seLst.get(label);
 			if(se0.size()==0)
 				continue;
+			
+			
+//			// TODO: delete
+//			if(n==258)
+//				System.out.println("Becareful");
+			
 			System.out.println("SE " + label);
 			
 			int rghs = Integer.MAX_VALUE;
@@ -636,12 +684,15 @@ public class ProgressBarRealizedStep6 extends SwingWorker<int[][][], Integer> {
 	@Override
 	protected void done() {
 		frame.setVisible(false);
-		JOptionPane.showMessageDialog(null, "Step6 Finish! Events Reconstructed");
+//		JOptionPane.showMessageDialog(null, "Step6 Finish! Events Reconstructed");
 		imageDealer.left.nextButton.setEnabled(true);
 		imageDealer.left.backButton.setEnabled(true);
 		imageDealer.left.jTP.setEnabledAt(6, true);
-		imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 6);;
-		imageDealer.right.typeJCB.addItem("Step6: Events Reconstructed");
+		
+		if(imageDealer.left.jTPStatus<6) {
+			imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 6);;
+			imageDealer.right.typeJCB.addItem("Step6: Events Reconstructed");
+		}
 //		imageDealer.right.typeJCB.setSelectedIndex(6);
 		
 		try {
@@ -649,7 +700,16 @@ public class ProgressBarRealizedStep6 extends SwingWorker<int[][][], Integer> {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-		imageDealer.dealImage();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				imageDealer.dealImage();
+				imageDealer.imageLabel.repaint();
+			}
+			
+		}).start();
 		imageDealer.saveStatus();
+		imageDealer.running = false;
 	}
 }

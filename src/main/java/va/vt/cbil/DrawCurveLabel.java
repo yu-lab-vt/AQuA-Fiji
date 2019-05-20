@@ -20,8 +20,15 @@ public class DrawCurveLabel extends JLabel {
 	int tEnd = 0;
 	float dffMax = 0;
 	int nEvt = 0;
+	int curFrame = 0;
+	ImageDealer imageDealer = null;
+	public DrawCurveLabel(ImageDealer imageDealer) {
+		// TODO Auto-generated constructor stub
+		this.imageDealer = imageDealer;
+	}
+
 	public void drawCurve(float[][][] dffMat, int nEvt, FtsLst fts) {
-		
+		this.curFrame = curFrame;
 		int T = dffMat[0].length;
 		
 		float min = Float.MAX_VALUE;
@@ -51,6 +58,8 @@ public class DrawCurveLabel extends JLabel {
 	public void paint(Graphics gr) {
 		super.paint(gr);
 		
+		int curFrame = imageDealer.curFrame;
+//		System.out.println(curFrame + "");
 		if(curve1!=null) {
 			g = (Graphics2D) gr;
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
@@ -60,6 +69,12 @@ public class DrawCurveLabel extends JLabel {
 			int width = this.getWidth();
 			int height = this.getHeight();
 			int T = curve1.length;
+			
+			for(int i=0;i<20;i=i+2) {
+				g.drawLine(curFrame*width/T, (int)(height/20*i), curFrame*width/T, (int)(height/20*(i+1)));
+			}
+			
+			
 			
 			for(int t=1;t<T;t++) {
 				g.drawLine((t-1)*width/T, (int)((1-curve1[t-1])*height), t*width/T, (int)((1-curve1[t])*height));
@@ -72,7 +87,7 @@ public class DrawCurveLabel extends JLabel {
 			
 			g.setColor(Color.red);
 			for(int t=tBegin+1;t<tEnd+1;t++) {
-				g.drawLine((t-1)*width/T, (int)((1-curve1[t-1])*height), t*width/T, (int)((1-curve1[t])*height));
+				g.drawLine((t-1)*width/T, (int)((1-curve2[t-1])*height), t*width/T, (int)((1-curve2[t])*height));
 			}
 			
 			int x = (tBegin+tEnd)/2*width/T;

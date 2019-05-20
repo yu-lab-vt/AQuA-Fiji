@@ -25,6 +25,14 @@ import javax.swing.SwingWorker;
 
 import va.vt.cbil.ProgressBarRealizedStep3.RiseNode;
 
+/**
+ * The fourth step of the whole software, to clean the events whose
+ * z score lower than threshold 
+ * 
+ * @author Xuelong Mi
+ * @version 1.0
+ */
+
 public class ProgressBarRealizedStep4 extends SwingWorker<int[][][], Integer> {
 	JFrame frame = new JFrame("Step4");
 	JPanel curPanel = new JPanel();
@@ -35,11 +43,20 @@ public class ProgressBarRealizedStep4 extends SwingWorker<int[][][], Integer> {
 	static long end;
 	ImageDealer imageDealer = null;
 	String proPath = null;
+	/**
+	 * Construct the class by imageDealer. 
+	 * 
+	 * @param imageDealer used to read the parameter
+	 */
 	public ProgressBarRealizedStep4(ImageDealer imageDealer) {
 		this.imageDealer = imageDealer;
 		proPath = imageDealer.proPath;
+		imageDealer.running = true;
 	}
 	
+	/**
+	 * Set the Jframe and its content, used to show the progress bar.
+	 */
 	protected void setting() {
 		frame.setSize(400, 200);
 		frame.setLocationRelativeTo(null);
@@ -62,6 +79,11 @@ public class ProgressBarRealizedStep4 extends SwingWorker<int[][][], Integer> {
 		
 	}
 	
+	/**
+	 * Clean the events
+	 * 
+	 * @return return the labels of different events
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	protected int[][][] doInBackground() throws Exception {
@@ -190,7 +212,9 @@ public class ProgressBarRealizedStep4 extends SwingWorker<int[][][], Integer> {
 			e.printStackTrace();
 		}
 		
+		imageDealer.riseLst = riseLstFilterZ;
 		
+		int nEvt = evtLstFilterZ.size();
 		
 		int W = imageDealer.width;
 		int H = imageDealer.height;
@@ -204,6 +228,7 @@ public class ProgressBarRealizedStep4 extends SwingWorker<int[][][], Integer> {
 			}
 		}
 		
+		
 		try {
 			FileOutputStream f = null;
 			ObjectOutputStream o = null;
@@ -212,15 +237,26 @@ public class ProgressBarRealizedStep4 extends SwingWorker<int[][][], Integer> {
 			o.writeObject(labels);
 			o.close();
 			f.close();
+			
+			f = new FileOutputStream(new File(proPath + "nEvt.ser"));
+			o = new ObjectOutputStream(f);
+			o.writeObject(nEvt);
+			o.close();
+			f.close();
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		imageDealer.center.EvtNumber.setText(evtLstFilterZ.size()+"");
 		
 		return labels;
 	}
 	
+	/** 
+	 * Report the progress.
+	 */
 	protected void process(List<Integer> chunks) {
 		int value = chunks.get(chunks.size()-1);
 		int total = 3;
@@ -239,15 +275,21 @@ public class ProgressBarRealizedStep4 extends SwingWorker<int[][][], Integer> {
 		jLabel.setText(str);
 	}
 	
+	/** 
+	 * Adjust the interface, save the status, and let the interface show the super voxels
+	 */
 	@Override
 	protected void done() {
 		frame.setVisible(false);
-		JOptionPane.showMessageDialog(null, "Step4 Finish! Events Cleaned");
+//		JOptionPane.showMessageDialog(null, "Step4 Finish! Events Cleaned");
 		imageDealer.left.nextButton.setEnabled(true);
 		imageDealer.left.backButton.setEnabled(true);
 		imageDealer.left.jTP.setEnabledAt(4, true);
-		imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 4);;
-		imageDealer.right.typeJCB.addItem("Step4: Events Cleaned");
+		
+		if(imageDealer.left.jTPStatus<4) {
+			imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 4);;
+			imageDealer.right.typeJCB.addItem("Step4: Events Cleaned");
+		}
 //		imageDealer.right.typeJCB.setSelectedIndex(4);
 		
 		try {
@@ -255,7 +297,16 @@ public class ProgressBarRealizedStep4 extends SwingWorker<int[][][], Integer> {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-		imageDealer.dealImage();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				imageDealer.dealImage();
+				imageDealer.imageLabel.repaint();
+			}
+			
+		}).start();
 		imageDealer.saveStatus();
+		imageDealer.running = false;
 	}
 }

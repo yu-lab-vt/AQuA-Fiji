@@ -48,7 +48,11 @@ class RightGroupPanel {
 	JLabel maxLabel = new JLabel(" Max");
 	JSlider maxSlider = null;
 	JLabel brightnessLabel = new JLabel(" Brightness");
+	JPanel brightPanel = new JPanel();
 	JSlider contrastSlider = new JSlider(JSlider.HORIZONTAL, 0, 800, 50);
+	JSlider contrastSliderl = new JSlider(JSlider.HORIZONTAL, 0, 800, 50);
+	JSlider contrastSliderr = new JSlider(JSlider.HORIZONTAL, 0, 800, 50);
+	GridBagPut settingRight1 = new GridBagPut(right1);
 	
 	JLabel rowBlank1 = new JLabel();
 	
@@ -148,6 +152,8 @@ class RightGroupPanel {
 		maxSlider.setPreferredSize(new Dimension(350,20));
 		brightnessLabel.setPreferredSize(new Dimension(400,15));
 		contrastSlider.setPreferredSize(new Dimension(350,20));
+		contrastSliderl.setPreferredSize(new Dimension(175,20));
+		contrastSliderr.setPreferredSize(new Dimension(175,20));
 		
 		// right2
 		rightLabel2.setHorizontalAlignment(JLabel.CENTER );
@@ -300,7 +306,7 @@ class RightGroupPanel {
 	
 	public void layout() {
 		// right1
-		GridBagPut settingRight1 = new GridBagPut(right1);
+		brightPanel.add(contrastSlider);
 		settingRight1.putGridBag(layers, right1, 0, 0);
 		settingRight1.putGridBag(rightLabel1, right1, 0, 1);
 		settingRight1.putGridBag(minLabel, right1, 0, 2);
@@ -308,7 +314,7 @@ class RightGroupPanel {
 		settingRight1.putGridBag(maxLabel, right1, 0, 4);
 		settingRight1.putGridBag(maxSlider, right1, 0, 5);
 		settingRight1.putGridBag(brightnessLabel, right1, 0, 6);
-		settingRight1.putGridBag(contrastSlider, right1, 0, 7);
+		settingRight1.putGridBag(brightPanel, right1, 0, 7);
 		right1.setBorder(BorderFactory.createEtchedBorder());
 		
 		//right2
@@ -440,6 +446,32 @@ class RightGroupPanel {
 			}
 		});
 		
+		contrastSliderl.setMinorTickSpacing(1);
+		contrastSliderl.setMajorTickSpacing(100);
+		contrastSliderl.addChangeListener(new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent evt){
+				if(!contrastSliderl.getValueIsAdjusting()){
+					int contr = contrastSliderl.getValue();
+					imageDealer.setConstrastl(contr);
+					imageDealer.dealImage();
+				}
+			}
+		});
+		
+		contrastSliderr.setMinorTickSpacing(1);
+		contrastSliderr.setMajorTickSpacing(100);
+		contrastSliderr.addChangeListener(new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent evt){
+				if(!contrastSliderr.getValueIsAdjusting()){
+					int contr = contrastSliderr.getValue();
+					imageDealer.setConstrastr(contr);
+					imageDealer.dealImage();
+				}
+			}
+		});
+		
 		contrastSlider2.setMinorTickSpacing(1);
 		contrastSlider2.setMajorTickSpacing(100);
 		contrastSlider2.addChangeListener(new ChangeListener()
@@ -469,7 +501,10 @@ class RightGroupPanel {
 					
 					if(r==-1)
 						return;
+					
 					imageDealer.left.intensityThreshold.set(r, intensitySlider.getValue());
+					BuilderTableItem item = imageDealer.left.builderMap.get(r);
+					item.region = imageDealer.left.getRegion(item.image,imageDealer.left.minSize.get(r),imageDealer.left.maxSize.get(r),imageDealer.left.intensityThreshold.get(r));
 				}
 			}
 		});
@@ -491,6 +526,8 @@ class RightGroupPanel {
 					if(r==-1)
 						return;
 					imageDealer.left.minSize.set(r, sizeMinSlider.getValue());
+					BuilderTableItem item = imageDealer.left.builderMap.get(r);
+					item.region = imageDealer.left.getRegion(item.image,imageDealer.left.minSize.get(r),imageDealer.left.maxSize.get(r),imageDealer.left.intensityThreshold.get(r));
 				}
 			}
 		});
@@ -512,6 +549,8 @@ class RightGroupPanel {
 					if(r==-1)
 						return;
 					imageDealer.left.maxSize.set(r, sizeMaxSlider.getValue());
+					BuilderTableItem item = imageDealer.left.builderMap.get(r);
+					item.region = imageDealer.left.getRegion(item.image,imageDealer.left.minSize.get(r),imageDealer.left.maxSize.get(r),imageDealer.left.intensityThreshold.get(r));
 				}
 			}
 		});
@@ -524,6 +563,7 @@ class RightGroupPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				int nEvt = Integer.parseInt(eventText.getText());
 				imageDealer.addCurve(nEvt);
+				imageDealer.dealImage();
 			}
 			
 		});
@@ -557,10 +597,10 @@ class RightGroupPanel {
 					if(selected) {
 						Integer label = (Integer) table.getValueAt(r, 2);
 						imageDealer.featureTableList.remove(label);
-						imageDealer.dealImage();
 						model.removeRow(r);
 					}
 				}
+				imageDealer.dealImage();
 			}
 		});
 		
@@ -661,9 +701,16 @@ class RightGroupPanel {
 		int colorIndex = colorJCB.getSelectedIndex();
 //		int transformIndex = transformJCB.getSelectedIndex();
 //		int divideIndex = divideJCB.getSelectedIndex();
+		int nLmk = 0;
+		if(imageDealer.fts.region!=null && imageDealer.fts.region.landMark!=null&& imageDealer.fts.region.landMark.center!=null)
+			nLmk = imageDealer.fts.region.landMark.center.length;
+		boolean regionExist = false;
+		if(imageDealer.fts.region.cell!=null && imageDealer.fts.region.cell.border!=null)
+			regionExist = true;
+		
 		
 		Color[] colors = imageDealer.labelColors;
-		
+		int nEvt = imageDealer.fts.basic.area.size();
 		HashMap<Integer, Float> feature = null;
 		switch(featureIndex) {
 			case 0: 
@@ -684,6 +731,165 @@ class RightGroupPanel {
 			case 5: feature = imageDealer.fts.curve.dffMax;	break;
 			case 6: feature = imageDealer.fts.curve.width55; break;
 			case 7: feature = imageDealer.fts.curve.width11; break;
+			case 8: feature = imageDealer.fts.curve.rise19; break;
+			case 9: feature = imageDealer.fts.curve.fall91; break;
+			case 10: feature = imageDealer.fts.curve.decayTau; break;
+			case 11:
+				feature = new HashMap<>();
+				for(int i=1;i<=nEvt;i++) {
+					float[] x0 = imageDealer.fts.propagation.propGrowOverall.get(i);
+					float sum = 0;
+					for(int k=0;k<x0.length;k++)
+						sum += x0[k];
+					feature.put(i, sum);
+				}
+				break;
+			case 12:
+				feature = new HashMap<>();
+				for(int i=1;i<=nEvt;i++) {
+					float[] x0 = imageDealer.fts.propagation.propGrowOverall.get(i);
+					feature.put(i, x0[0]);
+				}
+				break;
+			case 13:
+				feature = new HashMap<>();
+				for(int i=1;i<=nEvt;i++) {
+					float[] x0 = imageDealer.fts.propagation.propGrowOverall.get(i);
+					float sum = 0;
+					for(int k=0;k<x0.length;k++)
+						sum += x0[k];
+					if(sum!=0)
+						feature.put(i, x0[0]/sum);
+					else
+						feature.put(i, 0f);
+				}
+				break;
+			case 14:
+				feature = new HashMap<>();
+				for(int i=1;i<=nEvt;i++) {
+					float[] x0 = imageDealer.fts.propagation.propShrinkOverall.get(i);
+					float sum = 0;
+					for(int k=0;k<x0.length;k++)
+						sum += Math.abs(x0[k]);
+					feature.put(i, sum);
+				}
+				break;
+			case 15:
+				feature = new HashMap<>();
+				for(int i=1;i<=nEvt;i++) {
+					float[] x0 = imageDealer.fts.propagation.propShrinkOverall.get(i);
+					feature.put(i, Math.abs(x0[0]));
+				}
+				break;
+			case 16:
+				feature = new HashMap<>();
+				for(int i=1;i<=nEvt;i++) {
+					float[] x0 = imageDealer.fts.propagation.propShrinkOverall.get(i);
+					float sum = 0;
+					for(int k=0;k<x0.length;k++)
+						sum += x0[k];
+					if(sum!=0)
+						feature.put(i, Math.abs(x0[0]/sum));
+					else
+						feature.put(i, 0f);
+				}
+				break;
+			case 17:
+				feature = new HashMap<>();
+				if(nLmk==0) {
+					JOptionPane.showMessageDialog(null, "No landmark","Warning",JOptionPane.WARNING_MESSAGE); 
+					return;
+				}
+
+				for(int i=1;i<=nEvt;i++) {
+					feature.put(i, imageDealer.fts.region.landmarkDist.distAvg[i-1][0]);
+				}
+				break;
+			case 18:
+				feature = new HashMap<>();
+				if(nLmk==0) {
+					JOptionPane.showMessageDialog(null, "No landmark","Warning",JOptionPane.WARNING_MESSAGE); 
+					return;
+				}
+
+				for(int i=1;i<=nEvt;i++) {
+					feature.put(i, imageDealer.fts.region.landmarkDist.distMin[i-1][0]);
+				}
+				break;
+			case 19:
+				feature = new HashMap<>();
+				if(nLmk==0) {
+					JOptionPane.showMessageDialog(null, "No landmark","Warning",JOptionPane.WARNING_MESSAGE); 
+					return;
+				}
+
+				for(int i=1;i<=nEvt;i++) {
+					feature.put(i, imageDealer.fts.region.landmarkDir.chgToward[i-1][0]);
+				}
+				break;
+			case 20:
+				feature = new HashMap<>();
+				if(nLmk==0) {
+					JOptionPane.showMessageDialog(null, "No landmark","Warning",JOptionPane.WARNING_MESSAGE); 
+					return;
+				}
+
+				for(int i=1;i<=nEvt;i++) {
+					feature.put(i, imageDealer.fts.region.landmarkDir.chgAway[i-1][0]);
+				}
+				break;
+			case 21:
+				feature = new HashMap<>();
+				if(!regionExist) {
+					JOptionPane.showMessageDialog(null, "No Region","Warning",JOptionPane.WARNING_MESSAGE); 
+					return;
+				}
+
+				for(int i=1;i<=nEvt;i++) {
+					float minX0 = Float.MAX_VALUE;
+					float[] xx0 = imageDealer.fts.region.cell.dist2border[i-1];
+					for(int t=0;t<xx0.length;t++) {
+						if(!Float.isNaN(xx0[t]))
+							minX0 = Math.min(minX0, xx0[t]);
+					}
+					feature.put(i, minX0);
+				}
+				break;
+			case 22:
+				feature = new HashMap<>();
+				if(!regionExist) {
+					JOptionPane.showMessageDialog(null, "No Region","Warning",JOptionPane.WARNING_MESSAGE); 
+					return;
+				}
+
+				for(int i=1;i<=nEvt;i++) {
+					float minX0 = Float.MAX_VALUE;
+					float[] xx0 = imageDealer.fts.region.cell.dist2borderNorm[i-1];
+					for(int t=0;t<xx0.length;t++) {
+						if(!Float.isNaN(xx0[t]))
+							minX0 = Math.min(minX0, xx0[t]);
+					}
+					feature.put(i, minX0);
+				}
+				break;
+			case 23:
+				feature = new HashMap<>();
+				for(int i=1;i<=nEvt;i++) {
+					feature.put(i, (float)imageDealer.fts.network.nOccurSameLoc[i-1][0]);
+				}
+				break;
+			case 24:
+				feature = new HashMap<>();
+				for(int i=1;i<=nEvt;i++) {
+					feature.put(i, (float)imageDealer.fts.network.nOccurSameLoc[i-1][1]);
+				}
+				break;
+			case 25:
+				feature = new HashMap<>();
+				for(int i=1;i<=nEvt;i++) {
+					feature.put(i, (float)imageDealer.fts.network.nOccurSameTime[i-1]);
+				}
+				break;
 			default: return;
 		}
 		
@@ -790,6 +996,12 @@ class RightGroupPanel {
 		featureJCB.addItem("Landmark - Event Average Distance");
 		featureJCB.addItem("Landmark - Event Minimum Distance");
 		featureJCB.addItem("Landmark - Event Toward Distance");
+		featureJCB.addItem("Landmark - Event Away Distance");
+		featureJCB.addItem("Region - event centroid distance to border");
+		featureJCB.addItem("Region - event centroid distance to border - normalized by region radius");
+		featureJCB.addItem("Network - Temporal density");
+		featureJCB.addItem("Network - Temporal density with similar size only");
+		featureJCB.addItem("Network - Spatial density");
 		featureJCB.setBackground(Color.WHITE);
 		featureJCB.setEnabled(true);
 		colorJCB.addItem("GreenRed");

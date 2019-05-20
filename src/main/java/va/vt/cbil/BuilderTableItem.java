@@ -12,6 +12,7 @@ public class BuilderTableItem {
 	String maskName = "Project data";
 	String type = null;
 	ImageDealer imageDealer = null;
+	boolean[][] region = null;
 	
 	public BuilderTableItem(float[][] image, String type, ImageDealer imageDealer) {
 		this.image = copyImage(image);
@@ -26,6 +27,7 @@ public class BuilderTableItem {
 			}
 		}
 		imageDealer.maxAvg = maxAvg;
+		region = new boolean[image.length][image[0].length];
 	}
 	
 	public BuilderTableItem(String path, String type, ImageDealer imageDealer) {
@@ -60,7 +62,7 @@ public class BuilderTableItem {
 			}
 		}
 		imageDealer.maxAvg = maxAvg;
-		
+		region = new boolean[width][height];
 		this.type = type;
 		tableset();
 	}
@@ -99,7 +101,7 @@ public class BuilderTableItem {
 			}
 		}
 		imageDealer.maxAvg = maxAvg;
-		
+		region = new boolean[width][height];
 		this.type = type;
 		tableset();
 	}
@@ -116,9 +118,9 @@ public class BuilderTableItem {
 		imageDealer.left.intensityThreshold.add((int)(0.4*imageDealer.opts.maxValueDat)-1);
 		imageDealer.left.minSize.add(0);
 		imageDealer.left.maxSize.add((int) (imageDealer.getOrigHeight() * imageDealer.getOrigWidth()));
-		imageDealer.right.intensitySlider.setValue((int)(0.4*imageDealer.opts.maxValueDat)-1);
-		imageDealer.right.sizeMinSlider.setValue(0);
-		imageDealer.right.sizeMaxSlider.setValue((int) (imageDealer.getOrigHeight() * imageDealer.getOrigWidth()));
+//		imageDealer.right.intensitySlider.setValue((int)(0.4*imageDealer.opts.maxValueDat)-1);
+//		imageDealer.right.sizeMinSlider.setValue(0);
+//		imageDealer.right.sizeMaxSlider.setValue((int) (imageDealer.getOrigHeight() * imageDealer.getOrigWidth()));
 		
 	}
 

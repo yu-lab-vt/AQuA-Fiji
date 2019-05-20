@@ -3,6 +3,7 @@ package va.vt.cbil;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,6 +46,7 @@ class CenterGroupPanel {
 	JToggleButton panButton = new JToggleButton("PanAndZoom");
 	JButton resetButton = new JButton("Reset");
 	JToggleButton sideButton = new JToggleButton("Side by side");
+	JToggleButton gaussfilter = new JToggleButton("Gauss");
 	JLabel cL11 = new JLabel(" Jump to");
 	JLabel cL12 = new JLabel(" Playback frame rate");
 	JTextField jumpJTF = new JTextField("1");
@@ -60,6 +62,8 @@ class CenterGroupPanel {
 	JButton prev = new JButton("<<");
 	JButton next = new JButton(">>");
 	JSlider imageSlider = null;
+	JLabel nEvt = new JLabel("nEvt",JLabel.CENTER);
+	JLabel EvtNumber = new JLabel("0",JLabel.CENTER);
 		// center4
 	
 	ColorLabel bar = new ColorLabel();
@@ -67,14 +71,14 @@ class CenterGroupPanel {
 	JLabel minLabel = new JLabel();
 	JLabel maxLabel = new JLabel();
 	JLabel midLabel = new JLabel();
-	
-	DrawCurveLabel resultsLabel = new DrawCurveLabel();
+	JPanel colorbarPanel = new JPanel();
+	DrawCurveLabel resultsLabel = null; 
 	
 	// Side by side
 	int length = 400;
-	String[] leftJCBString = {"Raw", "Raw + overlay", "Rising map"};
+	String[] leftJCBString = {"Raw", "Raw + overlay", "Rising map", "Maximum projection","dF"};
 	JComboBox<String> leftJCB = new JComboBox<String>(leftJCBString);
-	String[] rightJCBString = {"Raw", "Raw + overlay", "Rising map"};
+	String[] rightJCBString = {"Raw", "Raw + overlay", "Rising map", "Maximum projection","dF"};
 	JComboBox<String> rightJCB = new JComboBox<String>(rightJCBString);
 	JPanel leftPanel = new JPanel();
 	JPanel leftImagePanel = new JPanel();
@@ -84,7 +88,9 @@ class CenterGroupPanel {
 	MyImageLabel rightImageLabel = new MyImageLabel();
 	JLabel blankLabel1 = new JLabel();
 	JLabel blankLabel2 = new JLabel();
-	
+	JPanel sidebysidePanel = new JPanel();
+	ColorLabel2 colorbarleft = new ColorLabel2();
+	ColorLabel2 colorbarright = new ColorLabel2();
 	// Builder
 	JPanel builderPane = new JPanel();
 	MakeBuilderLabel builderImageLabel = null;
@@ -96,19 +102,39 @@ class CenterGroupPanel {
 		builderImageLabel = imageDealer.builderImageLabel; 
 //		image = imageDealer.getImageShow();
 		pages = imageDealer.getPages();
-		status.setText("1/" + pages + " Frame " + ts + " /" + pages*ts + " Second");
+		status.setText("1/" + pages + " Frame " + ts + "/" + pages*ts + " Second");
 		imageSlider = new JSlider(JSlider.HORIZONTAL, 0, pages-1, 0);
+		resultsLabel = new DrawCurveLabel(imageDealer);
 		imageDealer.setCurveLabel(resultsLabel);
 	}
 	
 	public void setting() {
 		// center1
-		jumpJTF.setPreferredSize(new Dimension(50,20));
-		fpsJTF.setPreferredSize(new Dimension(50,20));
+		jumpJTF.setPreferredSize(new Dimension(30,20));
+		fpsJTF.setPreferredSize(new Dimension(25,20));
 		jumpJTF.setHorizontalAlignment(JTextField.CENTER);
 		fpsJTF.setHorizontalAlignment(JTextField.CENTER);
-		status.setPreferredSize(new Dimension(227,20));
+		status.setPreferredSize(new Dimension(175,20));
 		status.setHorizontalAlignment(JLabel.RIGHT);
+		
+		
+		int fontsize = 11;
+		status.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		panButton.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		resetButton.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		sideButton.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		gaussfilter.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		cL11.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		cL12.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		panButton.setPreferredSize(new Dimension(110,20));
+		resetButton.setPreferredSize(new Dimension(70,20));
+		sideButton.setPreferredSize(new Dimension(105,20));
+		gaussfilter.setPreferredSize(new Dimension(70,20));
+		cL11.setPreferredSize(new Dimension(50,20));
+		cL12.setPreferredSize(new Dimension(125,20));
+		
+		gaussfilter.setEnabled(false);
+		
 		// center2
 		center2.setPreferredSize(new Dimension(818,520));
 		
@@ -129,13 +155,19 @@ class CenterGroupPanel {
 		imageDealer.maxImageWidth = width;
 		imageDealer.maxImageHeight = height;
 		imageLabel.setMaxSize(width, height);
-		imageDealer.dealImage();
+		
 		// center3
 		pauseButton.setEnabled(false);
 		prev.setPreferredSize(new Dimension(48,25));
 		next.setPreferredSize(new Dimension(48,25));
 		imageSlider.setMinorTickSpacing(1); 		
-		imageSlider.setPreferredSize(new Dimension(552,20));
+		imageSlider.setPreferredSize(new Dimension(452,20));
+		nEvt.setPreferredSize(new Dimension(50,20));
+//		nEvt.setAlignmentX(JLabel.CENTER);
+		EvtNumber.setPreferredSize(new Dimension(50,20));
+		EvtNumber.setOpaque(true);
+		EvtNumber.setBackground(Color.white);
+//		EvtNumber.setAlignmentX(JLabel.CENTER);
 		// center4
 		bar.setPreferredSize(new Dimension(808,12));
 		bar.setOpaque(true);
@@ -153,8 +185,8 @@ class CenterGroupPanel {
 		resultsLabel.setOpaque(true);
 		resultsLabel.setBackground(Color.WHITE);
 		// Side by side
-		leftJCB.setPreferredSize(new Dimension(120,30));
-		rightJCB.setPreferredSize(new Dimension(120,30));
+		leftJCB.setPreferredSize(new Dimension(400,30));
+		rightJCB.setPreferredSize(new Dimension(400,30));
 		leftJCB.setBackground(Color.white);
 		rightJCB.setBackground(Color.white);
 		
@@ -168,12 +200,12 @@ class CenterGroupPanel {
 		
 		int sw = 0;
 		int sh = 0;
-		if(500*scal >400) {
+		if(400*scal >400) {
 			sw = 400;
 			sh = (int) (400/scal);
 		}else {
-			sw = (int) (500*scal);
-			sh = 500;
+			sw = (int) (400*scal);
+			sh = 400;
 		}
 		
 		leftImageLabel.setPreferredSize(new Dimension(sw,sh));
@@ -181,8 +213,13 @@ class CenterGroupPanel {
 		leftImageLabel.setMaxSize(sw,sh);
 		rightImageLabel.setMaxSize(sw,sh);
 		imageDealer.setLength(sw,sh);
-		blankLabel1.setPreferredSize(new Dimension(120,30));
-		blankLabel2.setPreferredSize(new Dimension(120,30));
+		blankLabel1.setPreferredSize(new Dimension(404,30));
+		blankLabel2.setPreferredSize(new Dimension(404,30));
+		colorbarleft.setPreferredSize(new Dimension(404,25));
+		colorbarright.setPreferredSize(new Dimension(404,25));
+		sidebysidePanel.setPreferredSize(new Dimension(818,495));
+//		colorbarleft.setOpaque(true);
+//		colorbarright.setOpaque(true);
 		
 		
 		sw = 0;
@@ -212,6 +249,7 @@ class CenterGroupPanel {
 		center1.add(cL12);
 		center1.add(fpsJTF);
 		center1.add(sideButton);
+		center1.add(gaussfilter);
 		center1.add(status);
 		// center2
 		
@@ -235,6 +273,8 @@ class CenterGroupPanel {
 		center3.add(prev);
 		center3.add(imageSlider);
 		center3.add(next);
+		center3.add(nEvt);
+		center3.add(EvtNumber);
 		// center4
 		center4.add(resultsLabel);
 		// centerGroup2
@@ -262,12 +302,21 @@ class CenterGroupPanel {
 		leftPanelSetting.putGridBag(leftJCB, leftPanel, 0, 0);
 		leftPanelSetting.putGridBag(blankLabel1, leftPanel, 0, 1);
 		leftPanelSetting.putGridBag(leftImagePanel, leftPanel, 0, 2);
+//		leftPanelSetting.putGridBag(colorbarleft, leftPanel, 0, 3);
 		
 		GridBagPut rightPanelSetting = new GridBagPut(rightPanel);
 		rightPanelSetting.fillBoth();
 		rightPanelSetting.putGridBag(rightJCB, rightPanel, 0, 0);
 		rightPanelSetting.putGridBag(blankLabel2, rightPanel, 0, 1);
 		rightPanelSetting.putGridBag(rightImagePanel, rightPanel, 0, 2);
+//		rightPanelSetting.putGridBag(colorbarright, rightPanel, 0, 3);
+		
+		GridBagPut settingSide = new GridBagPut(sidebysidePanel);
+		settingSide.fillBoth();					
+		settingSide.putGridBag(leftPanel, sidebysidePanel, 0, 0);
+//		settingSide.putGridBag(colorbarleft, sidebysidePanel, 0, 1);
+		settingSide.putGridBag(rightPanel, sidebysidePanel, 1, 0);
+//		settingSide.putGridBag(colorbarright, sidebysidePanel, 1, 1);
 	}
 	
 	
@@ -322,6 +371,7 @@ class CenterGroupPanel {
 					}
 					imageDealer.setPage(value);
 					imageDealer.dealImage();		
+					resultsLabel.repaint();
 					int page = value + 1;
 					status.setText(page + "/" + pages + " Frame " + page*ts +" /" + pages*ts + " Second");					
 				}
@@ -387,13 +437,61 @@ class CenterGroupPanel {
 		
 		leftJCB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				imageDealer.dealImage();
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						imageDealer.dealImage();
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						leftImageLabel.repaint();
+//						leftImageLabel.validate();
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						rightImageLabel.repaint();
+//						leftImageLabel.validate();
+						
+					}
+					
+				}).start();
 			}
 		});
 		
 		rightJCB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				imageDealer.dealImage();
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						imageDealer.dealImage();
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						leftImageLabel.repaint();
+//						leftImageLabel.validate();
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						rightImageLabel.repaint();
+//						leftImageLabel.validate();
+						
+					}
+					
+				}).start();
 			}
 		});
 		
@@ -470,26 +568,60 @@ class CenterGroupPanel {
 				// TODO Auto-generated method stub
 				if(sideButton.isSelected()) {
 					imageDealer.changeStatus();
-					center2.removeAll();
-					center2.setPreferredSize(new Dimension(818,520));
 					
+					center2.removeAll();
+//					center2.setPreferredSize(new Dimension(818,520));
+					colorbarPanel.add(colorbarleft);	
+					colorbarPanel.add(colorbarright);	
+					colorbarleft.setText(" ");
+					colorbarright.setText(" ");
+//					colorbarleft.setVisible(false);
+//					colorbarright.setVisible(false);
 					GridBagPut settingCenter2 = new GridBagPut(center2);
 					settingCenter2.fillBoth();					
-					settingCenter2.putGridBag(leftPanel, center2, 0, 0);
-					settingCenter2.putGridBag(rightPanel, center2, 1, 0);
-					leftImageLabel.repaint();
-					leftImageLabel.validate();
-					rightImageLabel.repaint();
-					leftImageLabel.validate();
+					settingCenter2.putGridBag(sidebysidePanel, center2, 0, 0);
+					settingCenter2.putGridBag(colorbarPanel, center2, 0, 1);
 					center2.repaint();
-					center2.validate();
-					imageDealer.dealImage();
 					
+					imageDealer.right.brightPanel.removeAll();
+					imageDealer.right.brightPanel.add(imageDealer.right.contrastSliderl);
+					imageDealer.right.brightPanel.add(imageDealer.right.contrastSliderr);
+					
+					
+//					center2.validate();
+					new Thread(new Runnable() {
 
+						@Override
+						public void run() {
+							imageDealer.dealImage();
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							leftImageLabel.repaint();
+//							leftImageLabel.validate();
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							rightImageLabel.repaint();
+//							leftImageLabel.validate();
+							
+						}
+						
+					}).start();
+					
 				}else {
 					imageDealer.changeStatus();
 					center2.removeAll();
 					center2.setPreferredSize(new Dimension(818,520));
+					
+					imageDealer.right.brightPanel.removeAll();
+					imageDealer.right.brightPanel.add(imageDealer.right.contrastSlider);
 					
 					GridBagPut settingCenter2 = new GridBagPut(center2);					
 					settingCenter2.putGridBag(imagePanel, center2, 0, 0);
@@ -497,10 +629,32 @@ class CenterGroupPanel {
 					
 					center2.repaint();
 					center2.validate();
-					imageLabel.repaint();
-					imageDealer.dealImage();
+					
+					new Thread(new Runnable() {
+
+						@Override
+						public void run() {
+							imageDealer.dealImage();
+							imageLabel.repaint();
+						}
+						
+					}).start();
+					
 
 				}
+			}			
+		});
+		
+		gaussfilter.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				// TODO Auto-generated method stub
+				if(gaussfilter.isSelected()) {
+					imageDealer.gaussStatus = true;
+				}else
+					imageDealer.gaussStatus = false;
+				
+				imageDealer.dealImage();
+
 			}			
 		});
 		

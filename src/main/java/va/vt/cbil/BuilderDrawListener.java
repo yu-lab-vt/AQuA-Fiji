@@ -15,7 +15,7 @@ import javax.swing.JComponent;
 import javax.swing.JToggleButton;
 
 
-class DrawListener implements MouseListener, MouseMotionListener {
+class BuilderDrawListener implements MouseListener, MouseMotionListener {
 
 
 	private Color color = new Color(128, 128, 255);
@@ -33,12 +33,12 @@ class DrawListener implements MouseListener, MouseMotionListener {
 	ImageDealer imageDealer = null;
 	boolean[][] region = null;
 	
-	public DrawListener(JComponent canvas, JToggleButton button, ImageDealer imageDealer, boolean[][] region) {
+	
+	public BuilderDrawListener(JComponent canvas, JToggleButton button, ImageDealer imageDealer) {
 		this.canvas = canvas;
 		this.button = button;
 //		this.list = list;
 		this.imageDealer = imageDealer;
-		this.region = region;
 	}
 	
 	public void setRegion(boolean[][] region) {
@@ -59,6 +59,9 @@ class DrawListener implements MouseListener, MouseMotionListener {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if(valid) {
+			int cwidth = canvas.getWidth();
+			int cheight = canvas.getHeight();
+			
 			Point curPoint = e.getPoint();
 			points.add(curPoint);
 			System.out.println(curPoint);
@@ -78,13 +81,15 @@ class DrawListener implements MouseListener, MouseMotionListener {
 				
 				if(curPoint == startPoint) {
 					double length = imageDealer.getWidth();
-					double tx = imageDealer.getStartPoint().getX();
-					double ty = imageDealer.getStartPoint().getY();
+//					double tx = imageDealer.getStartPoint().getX();
+//					double ty = imageDealer.getStartPoint().getY();
 					ArrayList<Point> affinePoints = new ArrayList<Point>();
 					for(Point point:points) {
 						Point affinePoint = new Point();
-						double x = point.getX()*imageDealer.getWidth()/imageDealer.maxImageWidth + tx;
-						double y = point.getY()*imageDealer.getHeight()/imageDealer.maxImageHeight + ty;
+//						double x = point.getX()*imageDealer.getWidth()/imageDealer.maxImageWidth + tx;
+//						double y = point.getY()*imageDealer.getHeight()/imageDealer.maxImageHeight + ty;
+						double x = point.getX()/cwidth*region.length;
+						double y = point.getY()/cheight*region[0].length;
 						affinePoint.setLocation(x, y);
 						affinePoints.add(affinePoint);
 //						System.out.println(affinePoint);

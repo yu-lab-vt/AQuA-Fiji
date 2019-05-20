@@ -209,20 +209,19 @@ class AquaWelcome {
 		    	if (result == JOptionPane.OK_OPTION) {
 		    		if(path == ""||proPath=="") {
 		    			JOptionPane.showMessageDialog(null, "You should select the Image and Project Folder","Warning",JOptionPane.WARNING_MESSAGE); 
-//		    			LoadImageFolder loadImage = new LoadImageFolder();
-//		    			path = loadImage.getPath();
-		    			addPathText.setText(path);
-		    		}	
+		    			welFrame.setVisible(true);
+		    		}else {
 		    
-					complete = true;
-					
-					AquaRunning aqua = new AquaRunning();
-					float ts = Float.parseFloat(jTF1.getText());
-					float ss = Float.parseFloat(jTF2.getText());
-					int border = Integer.parseInt(jTF3.getText());
-					int index = typeJCB.getSelectedIndex()+1;
-//					System.out.println(index);
-					aqua.start(path, proPath, load,ts,ss,border,index);
+						complete = true;
+						
+						AquaRunning aqua = new AquaRunning();
+						float ts = Float.parseFloat(jTF1.getText());
+						float ss = Float.parseFloat(jTF2.getText());
+						int border = Integer.parseInt(jTF3.getText());
+						int index = typeJCB.getSelectedIndex()+1;
+	//					System.out.println(index);
+						aqua.start(path, proPath, load,ts,ss,border,index);
+		    		}
 //					System.out.println(ts);
 		    	}else if (result == JOptionPane.CANCEL_OPTION){	// When click "Cancel"
 		        	try {

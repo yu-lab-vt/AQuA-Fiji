@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,10 +15,13 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
@@ -35,6 +39,7 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -56,6 +61,10 @@ class LeftGroupPanel {
 	JToggleButton removeLeft11 = new JToggleButton("Remove");
 	JToggleButton removeLeft12 = new JToggleButton("Remove");
 	JToggleButton drawAnterior = new JToggleButton("Draw anterior");
+	JButton save11 = new JButton("Save");
+	JButton save12 = new JButton("Save");
+	JButton load11 = new JButton("Load");
+	JButton load12 = new JButton("Load");
 	JButton maskBuilder = new JButton("Mask builder");
 	JButton updateFeatures = new JButton("Update features");
 	JPanel left11 = new JPanel();
@@ -80,6 +89,10 @@ class LeftGroupPanel {
 	JButton backButton = new JButton("Back");
 	JButton runButton = new JButton("Run");
 	JButton nextButton = new JButton("Next");
+	JPanel left2buttons = new JPanel();
+	JButton saveopts = new JButton("SaveOpts");
+	JButton loadopts = new JButton("LoadOpts");
+	JButton runAllButton = new JButton("RunAllSteps");
 	JPanel jTPButtons = new JPanel();
 	JLabel blankLabel = new JLabel();
 	
@@ -133,8 +146,11 @@ class LeftGroupPanel {
 	JLabel proofReading = new JLabel(" Proof reading");
 	JToggleButton viewFavourite = new JToggleButton("view/favourite");
 	JToggleButton deleteRestore = new JToggleButton("delete/restore");
+	JButton addAllFiltered = new JButton("addAllFiltered");
+	JButton featuresPlot = new JButton("featuresPlot");
 	JPanel left3 = new JPanel();
 	JPanel left3Buttons = new JPanel();
+	JPanel left3Buttons2 = new JPanel();
 	DefaultTableModel model = null;
 	JTable table = null;
 	JScrollPane tablePane = null;
@@ -177,6 +193,11 @@ class LeftGroupPanel {
 	JTable builderTable = null;
 	DefaultTableModel builderTableModel = null;
 	JButton builderRemove = new JButton("Remove");
+	JPanel builderManual = new JPanel();
+	JLabel buiderManualLabel = new JLabel("Manually Select");
+	JButton builderMClear = new JButton("Clear");
+	JToggleButton builderMAdd = new JToggleButton("Add");
+	JToggleButton builderMRemove = new JToggleButton("Remove");
 	JPanel builderLeft1Buttons = new JPanel();
 	
 	JPanel builderLeft2 = new JPanel();
@@ -204,8 +225,10 @@ class LeftGroupPanel {
 	
 	DrawListener drawlistener = null;
 	DrawListener drawlistener2 = null;
+	BuilderDrawListener builderDrawListener = null;
 	RemoveListener removeListener = null;
 	RemoveListener removeListener2 = null;
+	BuilderRemoveListener builderRemoveListener = null;
 	
 	public LeftGroupPanel(ImageDealer imageDealer) {
 		this.imageDealer = imageDealer;
@@ -243,12 +266,28 @@ class LeftGroupPanel {
 		dirLabel.setForeground(Color.WHITE);
 		dirLabel.setPreferredSize(new Dimension(400,20));
 		updateFeatures.setEnabled(false);
-		cellBoundary.setPreferredSize(new Dimension(180,20));
-		landmark.setPreferredSize(new Dimension(180,20));
-		addLeft11.setPreferredSize(new Dimension(80,20));
-		addLeft12.setPreferredSize(new Dimension(80,20));
-		removeLeft11.setPreferredSize(new Dimension(80,20));
-		removeLeft12.setPreferredSize(new Dimension(80,20));
+		cellBoundary.setPreferredSize(new Dimension(120,20));
+		landmark.setPreferredSize(new Dimension(120,20));
+		addLeft11.setPreferredSize(new Dimension(55,20));
+		addLeft12.setPreferredSize(new Dimension(55,20));
+		save11.setPreferredSize(new Dimension(60,20));
+		save12.setPreferredSize(new Dimension(60,20));
+		load11.setPreferredSize(new Dimension(60,20));
+		load12.setPreferredSize(new Dimension(60,20));
+		removeLeft11.setPreferredSize(new Dimension(70,20));
+		removeLeft12.setPreferredSize(new Dimension(70,20));
+		
+		int fontsize = 10;
+		cellBoundary.setFont(new Font("Dialog", Font.BOLD, fontsize+1));
+		landmark.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		addLeft11.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		addLeft12.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		save11.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		save12.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		load11.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		load12.setFont(new Font("Dialog", Font.BOLD, fontsize));
+		removeLeft11.setFont(new Font("Dialog", Font.BOLD, fontsize-2));
+		removeLeft12.setFont(new Font("Dialog", Font.BOLD, fontsize-2));
 		// left2
 		detLabel.setOpaque(true);
 		detLabel.setBackground(UI_Beauty.blue);
@@ -339,6 +378,8 @@ class LeftGroupPanel {
     	proofReading.setPreferredSize(new Dimension(400,20));
     	viewFavourite.setPreferredSize(new Dimension(190,25));
     	deleteRestore.setPreferredSize(new Dimension(190,25));
+    	addAllFiltered.setPreferredSize(new Dimension(190,25));
+    	featuresPlot.setPreferredSize(new Dimension(190,25));
     	
     		// Table
     	setTable();
@@ -389,6 +430,10 @@ class LeftGroupPanel {
     	
     	setBuilderTable();
     	builderRemove.setPreferredSize(new Dimension(100,20));
+    	buiderManualLabel.setPreferredSize(new Dimension(100,20));
+    	builderMClear.setPreferredSize(new Dimension(80,20));
+    	builderMAdd.setPreferredSize(new Dimension(80,20));
+    	builderMRemove.setPreferredSize(new Dimension(80,20));
     	
     	role.setPreferredSize(new Dimension(180,20));
     	combineRegion.setPreferredSize(new Dimension(180,20));
@@ -479,7 +524,7 @@ class LeftGroupPanel {
     			if(column == 1)
     				return true;
     			else
-    				return false;
+    				return true;
     		}
     	};
     	table = new JTable(model){
@@ -492,8 +537,8 @@ class LeftGroupPanel {
 					case 0:	return String.class;
 					case 1: return Boolean.class;
 					case 2: return String.class;
-					case 3: return String.class;
-					case 4: return String.class;
+					case 3: return Float.class;
+					case 4: return Float.class;
 					default: return Boolean.class;
 				}
 			}
@@ -521,7 +566,7 @@ class LeftGroupPanel {
     	tablePane = new JScrollPane(table);
     	tablePane.setPreferredSize(new Dimension(380,110));
     	tablePane.setOpaque(true);
-    	tablePane.setBackground(Color.red);
+    	tablePane.setBackground(Color.WHITE);
 	}
 	
 	public void layout2() {
@@ -553,9 +598,14 @@ class LeftGroupPanel {
 		left11.add(cellBoundary);
 		left11.add(addLeft11);
 		left11.add(removeLeft11);
+		left11.add(save11);
+		left11.add(load11);
+		
 		left12.add(landmark);
 		left12.add(addLeft12);
 		left12.add(removeLeft12);
+		left12.add(save12);
+		left12.add(load12);
 		left13.add(drawAnterior);
 		left13.add(maskBuilder);
 		left13.add(updateFeatures);
@@ -643,20 +693,29 @@ class LeftGroupPanel {
     	jTPButtons.add(backButton);
 		jTPButtons.add(runButton);
 		jTPButtons.add(nextButton);
-		
+		left2buttons.add(saveopts);
+		left2buttons.add(loadopts);
+		left2buttons.add(runAllButton);
 		GridBagPut settingleft2 = new GridBagPut(left2);
 		settingleft2.putGridBag(detLabel, left2, 0, 0);
 		settingleft2.putGridBag(jTP, left2, 0, 1);
 		settingleft2.putGridBag(jTPButtons, left2, 0, 2);
+		settingleft2.putGridBag(left2buttons, left2, 0, 3);
 		left2.setBorder(BorderFactory.createEtchedBorder());
 		
 		// left 3
 		left3Buttons.add(viewFavourite);
 		left3Buttons.add(deleteRestore);
+		left3Buttons2.add(addAllFiltered);
+		left3Buttons2.add(featuresPlot);
 		GridBagPut settingleft3 = new GridBagPut(left3);
 		settingleft3.putGridBag(proofReading, left3, 0, 0);
 		settingleft3.putGridBag(left3Buttons, left3, 0, 1);
 		settingleft3.putGridBag(tablePane, left3, 0, 2);
+		settingleft3.putGridBag(left3Buttons2, left3, 0, 3);
+
+
+    	
 		left3.setBorder(BorderFactory.createEtchedBorder());
 		
 		// left 4
@@ -690,6 +749,10 @@ class LeftGroupPanel {
 		builderLeft13.add(folder3);
 		builderLeft13.add(file3);
 		builderLeft1Buttons.add(builderRemove);
+		builderManual.add(buiderManualLabel);
+		builderManual.add(builderMClear);
+		builderManual.add(builderMAdd);
+		builderManual.add(builderMRemove);
 		GridBagPut builderSettint1 = new GridBagPut(builderLeft1);
 		builderSettint1.setAnchorNorthWest();
 		builderSettint1.fillBoth();
@@ -699,7 +762,11 @@ class LeftGroupPanel {
 		builderSettint1.putGridBag(builderLeft13, builderLeft1, 0, 3);
 		builderSettint1.putGridBag(builderTablePane, builderLeft1, 0, 4);
 		builderSettint1.putGridBag(builderLeft1Buttons, builderLeft1, 0, 5);
+		builderSettint1.putGridBag(builderManual, builderLeft1, 0, 6);
 		builderLeft1.setBorder(BorderFactory.createEtchedBorder());
+		
+		
+
 		
 		builderLeft21.add(role);
 		builderLeft21.add(roleJCB);
@@ -1037,6 +1104,251 @@ class LeftGroupPanel {
 			}
 		});
 		
+		saveopts.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("csv","csv");
+				chooser.setFileFilter(filter);
+//				chooser.setDialogTitle("Select Option File Path");
+//				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				chooser.setAcceptAllFileFilterUsed(false);
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					String savePath = chooser.getSelectedFile().getPath();
+				    savePath = savePath.replaceAll("\\\\", "\\\\\\\\");
+					imageDealer.exportOpts(savePath);
+				} else {
+					JOptionPane.showMessageDialog(null, "No Selection ");
+				}
+				
+			}
+		});
+		
+		loadopts.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("csv","csv");
+				chooser.setFileFilter(filter);
+//				chooser.setDialogTitle("Select Option File Path");
+//				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				chooser.setAcceptAllFileFilterUsed(false);
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					String savePath = chooser.getSelectedFile().getPath();
+				    savePath = savePath.replaceAll("\\\\", "\\\\\\\\");
+					imageDealer.loadOpts(savePath);
+				} else {
+					JOptionPane.showMessageDialog(null, "No Selection ");
+				}
+				
+			}
+		});
+		
+		save11.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("ser","ser");
+				chooser.setFileFilter(filter);
+				chooser.setAcceptAllFileFilterUsed(false);
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					String savePath = chooser.getSelectedFile().getPath();
+				    savePath = savePath.replaceAll("\\\\", "\\\\\\\\");
+				    String outputPath = null;
+				    if(savePath.substring(savePath.length()-4).equals(".ser"))
+						outputPath = savePath;
+					else
+						outputPath = savePath + ".ser";
+				    try {
+						FileOutputStream f = null;
+						ObjectOutputStream o = null;
+						
+						f = new FileOutputStream(new File(outputPath));
+						o = new ObjectOutputStream(f);
+						o.writeObject(imageDealer.regionMark);
+						System.out.println("Save Region");
+						o.close();
+						f.close();
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "No Selection ");
+				}
+			}
+		});
+		
+		load11.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("ser","ser");
+				chooser.setFileFilter(filter);
+				chooser.setAcceptAllFileFilterUsed(false);
+				boolean[][] regionMark = null;
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					String savePath = chooser.getSelectedFile().getPath();
+				    savePath = savePath.replaceAll("\\\\", "\\\\\\\\");
+				    try {
+				    	FileInputStream fi = null;
+						ObjectInputStream oi = null;
+						
+						fi = new FileInputStream(new File(savePath));	
+						oi = new ObjectInputStream(fi);
+						regionMark = (boolean[][])oi.readObject();
+						System.out.println("Load Region");
+						oi.close();
+						fi.close();
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
+				    int width = regionMark.length;
+				    int height = regionMark[0].length;
+				    boolean[][] region = imageDealer.regionMark;
+				    for(int x=0;x<width;x++) {
+				    	for(int y=0;y<height;y++) {
+				    		region[x][y] = regionMark[x][y];
+				    	}
+				    }
+					imageLabel.repaint();
+					dealBuilderRegion();
+				} else {
+					JOptionPane.showMessageDialog(null, "No Selection ");
+				}
+			}
+		});
+		
+		save12.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("ser","ser");
+				chooser.setFileFilter(filter);
+				chooser.setAcceptAllFileFilterUsed(false);
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					String savePath = chooser.getSelectedFile().getPath();
+				    savePath = savePath.replaceAll("\\\\", "\\\\\\\\");
+				    String outputPath = null;
+				    if(savePath.substring(savePath.length()-4).equals(".ser"))
+						outputPath = savePath;
+					else
+						outputPath = savePath + ".ser";
+				    try {
+						FileOutputStream f = null;
+						ObjectOutputStream o = null;
+						
+						f = new FileOutputStream(new File(outputPath));
+						o = new ObjectOutputStream(f);
+						o.writeObject(imageDealer.landMark);
+						System.out.println("Save LandMark");
+						o.close();
+						f.close();
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "No Selection ");
+				}
+			}
+		});
+		
+		load12.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("ser","ser");
+				chooser.setFileFilter(filter);
+				chooser.setAcceptAllFileFilterUsed(false);
+				boolean[][] regionMark = null;
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					String savePath = chooser.getSelectedFile().getPath();
+				    savePath = savePath.replaceAll("\\\\", "\\\\\\\\");
+				    try {
+				    	FileInputStream fi = null;
+						ObjectInputStream oi = null;
+						
+						fi = new FileInputStream(new File(savePath));	
+						oi = new ObjectInputStream(fi);
+						regionMark = (boolean[][])oi.readObject();
+						System.out.println("Load LandMark");
+						oi.close();
+						fi.close();
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
+				    int width = regionMark.length;
+				    int height = regionMark[0].length;
+				    boolean[][] region = imageDealer.landMark;
+				    for(int x=0;x<width;x++) {
+				    	for(int y=0;y<height;y++) {
+				    		region[x][y] = regionMark[x][y];
+				    	}
+				    }
+					imageLabel.repaint();
+				} else {
+					JOptionPane.showMessageDialog(null, "No Selection ");
+				}
+			}
+		});
+		
+			
+		
+		runAllButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				float thrArscl = Float.parseFloat(jTF11.getText());
+				float sigma = Float.parseFloat(jTF12.getText());
+				int minSize = Integer.parseInt(jTF13.getText());
+				imageDealer.setSignalProcessingParameters(thrArscl, sigma, minSize);
+				
+				float thrTWScl = Float.parseFloat(jTF21.getText());
+				float thrExtZ = Float.parseFloat(jTF22.getText());
+				imageDealer.setStep2(thrTWScl, thrExtZ);
+				
+				int cRise = Integer.parseInt(jTF31.getText());
+				int cDelay = Integer.parseInt(jTF32.getText());
+				float gtwSmo = Float.parseFloat(jTF33.getText());
+				imageDealer.setStep3(cRise, cDelay, gtwSmo);
+				
+				int zThr = Integer.parseInt(jTF41.getText());
+				imageDealer.setStep4(zThr);
+				int ignoreMerge = jTF51.isSelected()?1:0;
+				int mergeEventDiscon = Integer.parseInt(jTF52.getText());
+				int mergeEventCorr = Integer.parseInt(jTF53.getText());
+				int mergeEventMaxTimeDif = Integer.parseInt(jTF54.getText());
+				imageDealer.setStep5(ignoreMerge, mergeEventDiscon, mergeEventCorr,mergeEventMaxTimeDif);
+
+				int extendEvtRe = jTF61.isSelected()?1:0;
+				imageDealer.setStep6(extendEvtRe);
+
+				boolean isChecked = jTF71.isSelected();
+				imageDealer.setStep7(isChecked);
+				
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						while(true) {
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							if(!imageDealer.running) {
+//								System.out.println("run");
+								runButton.doClick();
+								
+//								System.out.println("next");
+								if(curStatus==6)
+									break;
+								nextButton.doClick();
+								
+//								Thread.sleep(100);
+								
+							}
+						}
+					}
+				}).start();
+				
+//				imageDealer.runAllSteps();
+				
+			}
+		});
+		
 		restart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO:
@@ -1051,19 +1363,31 @@ class LeftGroupPanel {
 			}
 		});
 		
-		ViewFeatureListener viewListener = new ViewFeatureListener(imageDealer,imageDealer.center.resultsLabel.getLocation());
+		ViewFeatureListener viewListener = new ViewFeatureListener(imageDealer,imageDealer.imageLabel);
+		ViewFeatureListener viewListener1 = new ViewFeatureListener(imageDealer,imageDealer.center.leftImageLabel);
+		ViewFeatureListener viewListener2 = new ViewFeatureListener(imageDealer,imageDealer.center.rightImageLabel);
 		imageLabel.addMouseListener(viewListener);
+		imageDealer.center.leftImageLabel.addMouseListener(viewListener1);
+		imageDealer.center.rightImageLabel.addMouseListener(viewListener2);
 		viewFavourite.addChangeListener(new ChangeListener(){
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				// TODO Auto-generated method stub
 				if(viewFavourite.isSelected()) {
 					viewListener.setValid(true);
-
+					viewListener1.setValid(true);
+					viewListener2.setValid(true);
+					deleteRestore.setSelected(false);
 					imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+					imageDealer.center.leftImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+					imageDealer.center.rightImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 				}else {
 					viewListener.setValid(false);
+					viewListener1.setValid(false);
+					viewListener2.setValid(false);
 					imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					imageDealer.center.leftImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					imageDealer.center.rightImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					
 				}
 			}
@@ -1071,19 +1395,31 @@ class LeftGroupPanel {
 		});
 		
 		
-		DeleteButtonListener deleteListener = new DeleteButtonListener(imageDealer,imageDealer.imageLabel.getLocation());
+		DeleteButtonListener deleteListener = new DeleteButtonListener(imageDealer,imageDealer.imageLabel);
+		DeleteButtonListener deleteListener1 = new DeleteButtonListener(imageDealer,imageDealer.center.leftImageLabel);
+		DeleteButtonListener deleteListener2 = new DeleteButtonListener(imageDealer,imageDealer.center.rightImageLabel);
 		imageLabel.addMouseListener(deleteListener);
+		imageDealer.center.leftImageLabel.addMouseListener(deleteListener1);
+		imageDealer.center.rightImageLabel.addMouseListener(deleteListener2);
 		deleteRestore.addChangeListener(new ChangeListener(){
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				// TODO Auto-generated method stub
 				if(deleteRestore.isSelected()) {
 					deleteListener.setValid(true);
-
+					deleteListener1.setValid(true);
+					deleteListener2.setValid(true);
+					viewFavourite.setSelected(false);
 					imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+					imageDealer.center.leftImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+					imageDealer.center.rightImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 				}else {
 					deleteListener.setValid(false);
+					deleteListener1.setValid(false);
+					deleteListener2.setValid(false);
 					imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					imageDealer.center.leftImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					imageDealer.center.rightImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					
 				}
 			}
@@ -1110,19 +1446,25 @@ class LeftGroupPanel {
 		
 		self1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				builderMap.add(new BuilderTableItem(imageDealer.avgImage,"region", imageDealer));
+				BuilderTableItem item = new BuilderTableItem(imageDealer.avgImage,"region", imageDealer);
+				imageDealer.builderImageLabel.getComponentBorder(item.region);
+				builderMap.add(item);
 			}
 		});
 		
 		self2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				builderMap.add(new BuilderTableItem(imageDealer.avgImage,"region mark", imageDealer));
+				BuilderTableItem item = new BuilderTableItem(imageDealer.avgImage,"region mark", imageDealer);
+				imageDealer.builderImageLabel.getComponentBorder(item.region);
+				builderMap.add(item);
 			}
 		});
 		
 		self3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				builderMap.add(new BuilderTableItem(imageDealer.avgImage,"landmark", imageDealer));
+				BuilderTableItem item = new BuilderTableItem(imageDealer.avgImage,"landmark", imageDealer);
+				imageDealer.builderImageLabel.getComponentBorder(item.region);
+				builderMap.add(item);
 			}
 		});
 		
@@ -1139,7 +1481,9 @@ class LeftGroupPanel {
 				} else {
 					JOptionPane.showMessageDialog(null, "No Selection ");
 				}
-				builderMap.add(new BuilderTableItem(savePath,"region", imageDealer));
+				BuilderTableItem item = new BuilderTableItem(savePath,"region", imageDealer);
+				imageDealer.builderImageLabel.getComponentBorder(item.region);
+				builderMap.add(item);
 			}
 		});
 		
@@ -1156,7 +1500,9 @@ class LeftGroupPanel {
 				} else {
 					JOptionPane.showMessageDialog(null, "No Selection ");
 				}
-				builderMap.add(new BuilderTableItem(savePath,"region mark", imageDealer));
+				BuilderTableItem item = new BuilderTableItem(savePath,"region mark", imageDealer);
+				imageDealer.builderImageLabel.getComponentBorder(item.region);
+				builderMap.add(item);
 			}
 		});
 		
@@ -1173,7 +1519,9 @@ class LeftGroupPanel {
 				} else {
 					JOptionPane.showMessageDialog(null, "No Selection ");
 				}
-				builderMap.add(new BuilderTableItem(savePath,"landmark", imageDealer));
+				BuilderTableItem item = new BuilderTableItem(savePath,"landmark", imageDealer);
+				imageDealer.builderImageLabel.getComponentBorder(item.region);
+				builderMap.add(item);
 			}
 		});
 		
@@ -1192,7 +1540,9 @@ class LeftGroupPanel {
 				}
 				File folder = new File(savePath);
 				File[] listOfFiles = folder.listFiles();
-				builderMap.add(new BuilderTableItem(savePath,listOfFiles,"region",(int)imageDealer.getOrigWidth(),(int)imageDealer.getOrigHeight(), imageDealer));
+				BuilderTableItem item = new BuilderTableItem(savePath,listOfFiles,"region",(int)imageDealer.getOrigWidth(),(int)imageDealer.getOrigHeight(), imageDealer);
+				imageDealer.builderImageLabel.getComponentBorder(item.region);
+				builderMap.add(item);
 			}
 			
 		});
@@ -1212,7 +1562,9 @@ class LeftGroupPanel {
 				}
 				File folder = new File(savePath);
 				File[] listOfFiles = folder.listFiles();
-				builderMap.add(new BuilderTableItem(savePath,listOfFiles,"region mark",(int)imageDealer.getOrigWidth(),(int)imageDealer.getOrigHeight(), imageDealer));
+				BuilderTableItem item = new BuilderTableItem(savePath,listOfFiles,"region mark",(int)imageDealer.getOrigWidth(),(int)imageDealer.getOrigHeight(), imageDealer);
+				imageDealer.builderImageLabel.getComponentBorder(item.region);
+				builderMap.add(item);
 			}
 			
 		});
@@ -1232,7 +1584,9 @@ class LeftGroupPanel {
 				}
 				File folder = new File(savePath);
 				File[] listOfFiles = folder.listFiles();
-				builderMap.add(new BuilderTableItem(savePath,listOfFiles,"landmark",(int)imageDealer.getOrigWidth(),(int)imageDealer.getOrigHeight(), imageDealer));
+				BuilderTableItem item = new BuilderTableItem(savePath,listOfFiles,"landmark",(int)imageDealer.getOrigWidth(),(int)imageDealer.getOrigHeight(), imageDealer);
+				imageDealer.builderImageLabel.getComponentBorder(item.region);
+				builderMap.add(item);
 			}
 			
 		});
@@ -1247,10 +1601,70 @@ class LeftGroupPanel {
 				}
 				builderTableModel.setValueAt(new Boolean(true), r, 1);
 				imageDealer.curBuilderImage = builderMap.get(r).image;
+				imageDealer.builderImageLabel.getComponentBorder(builderMap.get(r).region);
 				imageDealer.dealBuilderImageLabel();
-				imageDealer.right.intensitySlider.setValue(intensityThreshold.get(r));
-				imageDealer.right.sizeMinSlider.setValue(minSize.get(r));
-				imageDealer.right.sizeMaxSlider.setValue(maxSize.get(r));
+//				imageDealer.right.intensitySlider.setValue(intensityThreshold.get(r));
+//				imageDealer.right.sizeMinSlider.setValue(minSize.get(r));
+//				imageDealer.right.sizeMaxSlider.setValue(maxSize.get(r));
+				
+			}
+		});
+		
+		table.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				int nEvt = imageDealer.fts.basic.area.size();
+				imageDealer.deleteColorSet2 = new HashSet<>();
+				if((boolean) table.getValueAt(0, 1)) {
+					float min = (float) table.getValueAt(0, 3);
+					float max = (float) table.getValueAt(0, 4);
+					for(int i=1;i<=nEvt;i++) {
+						float value = imageDealer.fts.basic.area.get(i);
+						if(value<min || value > max) {
+							imageDealer.deleteColorSet2.add(i);
+						}
+					}
+				}
+				if((boolean) table.getValueAt(1, 1)) {
+					float min = (float) table.getValueAt(1, 3);
+					float max = (float) table.getValueAt(1, 4);
+					for(int i=1;i<=nEvt;i++) {
+						float value = imageDealer.fts.curve.dffMax.get(i);
+						if(value<min || value > max) {
+							imageDealer.deleteColorSet2.add(i);
+						}
+					}
+				}
+				if((boolean) table.getValueAt(2, 1)) {
+					float min = (float) table.getValueAt(2, 3);
+					float max = (float) table.getValueAt(2, 4);
+					for(int i=1;i<=nEvt;i++) {
+						float value = imageDealer.fts.curve.width55.get(i);
+						if(value<min || value > max) {
+							imageDealer.deleteColorSet2.add(i);
+						}
+					}
+				}
+				if((boolean) table.getValueAt(3, 1)) {
+					float min = (float) table.getValueAt(3, 3);
+					float max = (float) table.getValueAt(3, 4);
+					for(int i=1;i<=nEvt;i++) {
+						float value = imageDealer.fts.curve.dffMaxPval.get(i);
+						if(value<min || value > max) {
+							imageDealer.deleteColorSet2.add(i);
+						}
+					}
+				}
+				if((boolean) table.getValueAt(4, 1)) {
+					float min = (float) table.getValueAt(4, 3);
+					float max = (float) table.getValueAt(4, 4);
+					for(int i=1;i<=nEvt;i++) {
+						float value = imageDealer.fts.curve.decayTau.get(i);
+						if(value<min || value > max) {
+							imageDealer.deleteColorSet2.add(i);
+						}
+					}
+				}
+				imageDealer.dealImage();
 			}
 		});
 		
@@ -1276,6 +1690,129 @@ class LeftGroupPanel {
 					builderTableModel.setValueAt(new Integer(i+1), i, 0);
 				}
 			}
+		});
+		
+		builderMClear.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				int r = -1;
+				int rNumber = builderTable.getRowCount();
+				for(int i=0;i<rNumber;i++) {
+					if((boolean) builderTableModel.getValueAt(i, 1))
+						r = i;
+				}
+				
+				if(r==-1)
+					return;
+				
+				boolean[][] region = builderMap.get(r).region;
+				int width = region.length;
+				int height = region[0].length;
+				builderMap.get(r).region = new boolean[width][height];
+				imageDealer.builderImageLabel.getComponentBorder(builderMap.get(r).region);
+				imageDealer.dealBuilderImageLabel();
+			}
+		});
+		
+		builderDrawListener = new BuilderDrawListener(imageDealer.builderImageLabel,builderMAdd,imageDealer);
+		drawlistener.setColor(color1);
+		imageDealer.builderImageLabel.addMouseListener(builderDrawListener);
+		imageDealer.builderImageLabel.addMouseMotionListener(builderDrawListener);
+		builderMAdd.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				int r = -1;
+				int rNumber = builderTable.getRowCount();
+				for(int i=0;i<rNumber;i++) {
+					if((boolean) builderTableModel.getValueAt(i, 1))
+						r = i;
+				}
+				
+				if(r==-1)
+					return;
+				
+				boolean[][] region = builderMap.get(r).region;
+				builderDrawListener.setRegion(region);
+				// TODO Auto-generated method stub
+				if(builderMAdd.isSelected()) {
+					builderMRemove.setSelected(false);
+					builderDrawListener.setValid(true);
+					imageDealer.builderImageLabel.setValid1(true);
+					imageDealer.builderImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+				}else {
+					builderDrawListener.setValid(false);
+					builderDrawListener.clearPoints();
+					imageDealer.builderImageLabel.setValid1(false);
+					imageDealer.builderImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					builderMap.get(r).region = region;
+					imageDealer.builderImageLabel.getComponentBorder(builderMap.get(r).region);
+				}
+			}
+			
+		});		
+		
+		builderRemoveListener = new BuilderRemoveListener(imageDealer.builderImageLabel);
+		imageDealer.builderImageLabel.addMouseListener(builderRemoveListener);
+		builderMRemove.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				int r = -1;
+				int rNumber = builderTable.getRowCount();
+				for(int i=0;i<rNumber;i++) {
+					if((boolean) builderTableModel.getValueAt(i, 1))
+						r = i;
+				}
+				
+				if(r==-1)
+					return;
+				
+				boolean[][] region = builderMap.get(r).region;
+				builderRemoveListener.setRegion(region);
+				// TODO Auto-generated method stub
+				if(builderMRemove.isSelected()) {
+					builderMAdd.setSelected(false);
+					builderRemoveListener.setValid(true);
+					imageDealer.builderImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+				}else {
+					builderRemoveListener.setValid(false);
+					imageDealer.builderImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					imageDealer.builderImageLabel.repaint();
+					builderMap.get(r).region = region;
+					imageDealer.builderImageLabel.getComponentBorder(builderMap.get(r).region);
+//					changeRegionStatus(imageDealer.regionMark,list1);
+				}
+			}
+			
+		});
+		
+		
+		addAllFiltered.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int nEvt = imageDealer.fts.basic.area.size();
+				for(int i=1;i<=nEvt;i++) {
+					if((imageDealer.deleteColorSet2.contains(i)) || (imageDealer.featureTableList.contains(i)))
+						continue;
+					
+					imageDealer.featureTableList.add(i);
+//					System.out.println(featureTableList.size());
+					int rowNumber = imageDealer.right.table.getRowCount();
+					int frame = imageDealer.fts.curve.tBegin.get(i);
+					float size = imageDealer.fts.basic.area.get(i);
+					float duration = imageDealer.fts.curve.width55.get(i);
+					float dffMax = imageDealer.fts.curve.dffMax.get(i);
+					float tau = imageDealer.fts.curve.decayTau.get(i); 
+					imageDealer.right.model.addRow(new Object[] {new Integer(rowNumber+1),new Boolean(false),new Integer(i),new Integer(frame+1),new Float(size),new Float(duration),new Float(dffMax),new Float(tau)});
+
+				}
+				imageDealer.dealImage();
+			}
+			
+		});
+		
+		featuresPlot.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DrawFeatures draw = new DrawFeatures(imageDealer);
+			}
+			
 		});
 	}
 	
@@ -1391,7 +1928,8 @@ class LeftGroupPanel {
 			if(!item.type.equals("region")) 
 				continue;
 			
-			boolean[][] curRegion = getRegion(item.image,minSize.get(i),maxSize.get(i),intensityThreshold.get(i));
+			boolean[][] curRegion = item.region;
+					//getRegion(item.image,minSize.get(i),maxSize.get(i),intensityThreshold.get(i));
 			if(status==0) {
 				for(int x=0;x<width;x++) {
 					for(int y=0;y<height;y++) {

@@ -4,14 +4,19 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.JLabel;
+
 public class DeleteButtonListener implements MouseListener {
     ImageDealer imageDealer = null;
     private Point location;
     private boolean valid = false;
+    int width = 0;
+    int height = 0;
+    JLabel imageLabel = null;
     
-	public DeleteButtonListener(ImageDealer imageDealer, Point location) {
+	public DeleteButtonListener(ImageDealer imageDealer, JLabel imageLabel) {
 		this.imageDealer = imageDealer;
-		this.location = location;
+		this.imageLabel = imageLabel;
 	}
 	
 	public void setValid(boolean valid) {
@@ -21,6 +26,9 @@ public class DeleteButtonListener implements MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if(valid) {
+			location = imageLabel.getLocation();
+			width = imageLabel.getWidth();
+			height = imageLabel.getHeight();
 			Point p = e.getPoint();
 			p = transformPoint(p);
 			Point start = imageDealer.getStartPoint();
@@ -34,8 +42,8 @@ public class DeleteButtonListener implements MouseListener {
 	}
 
 	public Point transformPoint2(Point p, double dx, double dy) {
-		double resultX = imageDealer.getStartPoint().getX() + p.getX()*dx/imageDealer.getOrigWidth();
-		double resultY = imageDealer.getStartPoint().getY() + p.getY()*dy/imageDealer.getOrigHeight();
+		double resultX = imageDealer.getStartPoint().getX() + p.getX()*dx/width;
+		double resultY = imageDealer.getStartPoint().getY() + p.getY()*dy/height;
 		Point result = new Point();
 		result.setLocation(resultX, resultY);
 		return result;

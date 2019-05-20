@@ -77,6 +77,7 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 			}
 		}
 		proPath = imageDealer.proPath;
+		imageDealer.running = true;
 	}
 	
 	/**
@@ -452,6 +453,12 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 			o.writeObject(dF);
 			o.close();
 			f.close();
+			
+			f = new FileOutputStream(new File(proPath+"dActVoxDi.ser"));
+			o = new ObjectOutputStream(f);
+			o.writeObject(dActVoxDi);
+			o.close();
+			f.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -485,7 +492,8 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 		
 		long end = System.currentTimeMillis();
 		System.out.println((end-start)+"ms");
-		
+		imageDealer.dat = dat;
+		imageDealer.dF = dF;
 		
 		return label;
 		
@@ -533,21 +541,34 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 	@Override
 	protected void done() {
 		frame.setVisible(false);
-		JOptionPane.showMessageDialog(null, "Step1 Finish!");
+//		JOptionPane.showMessageDialog(null, "Step1 Finish!");
 		try {
 			imageDealer.label = this.get();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		imageDealer.changeSignalDrawRegionStatus();
-		imageDealer.dealImage();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				imageDealer.dealImage();
+				imageDealer.imageLabel.repaint();
+			}
+			
+		}).start();
+		imageDealer.center.gaussfilter.setEnabled(true);
 		imageDealer.left.nextButton.setEnabled(true);
 		imageDealer.left.backButton.setEnabled(true);
 		imageDealer.left.jTP.setEnabledAt(1, true);
-		imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 1);
+		
 		imageDealer.right.typeJCB.setEnabled(true);
-		imageDealer.right.typeJCB.addItem("Step1: Active Voxels");
+		if(imageDealer.left.jTPStatus<1) {
+			imageDealer.right.typeJCB.addItem("Step1: Active Voxels");
+			imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 1);
+		}
 //		imageDealer.right.typeJCB.setSelectedIndex(1);
 		imageDealer.saveStatus();
+		imageDealer.running = false;
 	}
 }

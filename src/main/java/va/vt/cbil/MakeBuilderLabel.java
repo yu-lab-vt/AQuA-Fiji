@@ -27,6 +27,8 @@ public class MakeBuilderLabel extends JLabel {
 	
 	int width = 0;
 	int height = 0;
+	private boolean valid1 = false;
+	private boolean valid2 = false;
 	
 	public MakeBuilderLabel(ImageDealer imageDealer) {
 		this.imageDealer = imageDealer;
@@ -107,12 +109,63 @@ public class MakeBuilderLabel extends JLabel {
 		repaint();
 	}
 	
+	public void getComponentBorder(boolean[][] thresholdMap) {
+		borderMap = new HashMap<>();
+		HashMap<Integer, ArrayList<int[]>> connectedMap = ConnectedComponents.twoPassConnect2D(thresholdMap);
+		
+		
+		
+		
+		int cnt = 0;
+		for(Entry<Integer, ArrayList<int[]>> entry:connectedMap.entrySet()) {
+			ArrayList<int[]> points = entry.getValue();
+			
+			int minX = Integer.MAX_VALUE;
+			int minY = Integer.MAX_VALUE;
+			int maxX = Integer.MIN_VALUE;
+			int maxY = Integer.MIN_VALUE;
+			for(int[] p:points) {
+				minX = Math.min(minX, p[0]);
+				minY = Math.min(minY, p[1]);
+				maxX = Math.max(maxX, p[0]);
+				maxY = Math.max(maxY, p[1]);
+			}
+			
+			
+			boolean[][] smallMap = new boolean[maxX-minX+1][maxY-minY+1];
+			for(int[] p:points) {
+				smallMap[p[0]-minX][p[1]-minY] = true;
+			}
+			int x = 0;
+			int y = 0;
+			
+			while(!smallMap[x][y]) {
+				x++;
+			}
+			ArrayList<int[]> boundary = new ArrayList<>();
+			BasicFeatureDealer.findBoundary(smallMap,x,y,boundary,1);
+			
+			ArrayList<int[]> border = new ArrayList<>();
+			for(int[] p:boundary) {
+				border.add(new int[] {p[0]+minX, p[1]+minY});
+			}
+			cnt++;
+			borderMap.put(cnt, border);
+		}
+		
+//		System.out.println(borderMap.size());
+				
+		
+		repaint();
+	}
+	
 	
 	@Override
 	public void paint(Graphics gr) {
 		super.paint(gr);
 		drawBorder(gr);
 	}
+	
 	
 	private void drawBorder(Graphics gr) {
 		if(borderMap!=null) {	
@@ -139,5 +192,10 @@ public class MakeBuilderLabel extends JLabel {
 			}
 			
 		}
+	}
+
+	public void setValid1(boolean b) {
+		// TODO Auto-generated method stub
+		valid1 = b;
 	}
 }

@@ -47,6 +47,15 @@ public class DrawCurveLabel2 extends JLabel {
 			int width = this.getWidth();
 			int height = this.getHeight();
 			int dh = height/indexLst.size(); 
+			int ddh = 0;
+			if(indexLst.size()==1) {
+				dh = height;
+				ddh = 0;
+			}else {
+				dh = 160;
+				ddh = (height-dh)/(indexLst.size()-1);
+			}
+			
 			
 			
 			for(int i=0;i<indexLst.size();i++) {
@@ -57,7 +66,7 @@ public class DrawCurveLabel2 extends JLabel {
 				float max = -Float.MAX_VALUE;
 				for(int t = 0;t<T;t++) {
 					min = Math.min(min, dffMat[nEvt-1][t][1]);
-					max = Math.max(max, dffMat[nEvt-1][t][0]);
+					max = Math.max(max, dffMat[nEvt-1][t][1]);
 				}	
 				
 				float[] curve = new float[T];
@@ -66,7 +75,7 @@ public class DrawCurveLabel2 extends JLabel {
 					curve[t] = (dffMat[nEvt-1][t][1] - min)/(max-min);
 				}
 				
-				int dh2 = i*dh;
+				int dh2 = i*ddh;
 				
 				
 				for(int t=1;t<T;t++) {
@@ -77,10 +86,10 @@ public class DrawCurveLabel2 extends JLabel {
 				int tEnd = fts.curve.tEnd.get(nEvt);
 				float dffMax = fts.curve.dffMax.get(nEvt);
 				int x = (tBegin+tEnd)/2*width/T;
-				if(x+100>width)
+				if(x+120>width)
 					x = width-100;
 				
-				g.drawString(nEvt + " dff: " + dffMax, x, dh2 + 20);
+				g.drawString(nEvt + " dff: " + dffMax, x, dh2 + 40);
 				
 			}
 		}

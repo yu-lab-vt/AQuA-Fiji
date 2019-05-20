@@ -44,6 +44,12 @@ public class MyImageLabel extends JLabel {
 	private boolean valid1 = false;
 	private boolean valid2 = false;
 	
+	boolean drawBorder = true;
+	
+	public void setDrawBorder(boolean a) {
+		drawBorder = a;
+	}
+	
 	public MyImageLabel() {
 		list1 = new ArrayList<ArrayList<Point>>();
 		list2 = new ArrayList<ArrayList<Point>>();
@@ -102,8 +108,10 @@ public class MyImageLabel extends JLabel {
 	@Override
 	public void paint(Graphics gr) {
 		super.paint(gr);
-		draw(gr);
-		drawAnterior(gr);
+		if(gr!=null) {
+			draw(gr);
+			drawAnterior(gr);
+		}
 		
 	}
 	
@@ -238,6 +246,12 @@ public class MyImageLabel extends JLabel {
 		g.setTransform(affineTransform);
 		startPoint = imageDealer.getStartPoint();
 		endPoint = imageDealer.getEndPoint();
+		if(startPoint==null || endPoint==null) {
+			startPoint = new Point();
+			startPoint.setLocation(0, 0);
+			endPoint = new Point();
+			endPoint.setLocation(imageDealer.width,imageDealer.height);
+		}
 		double tx = startPoint.getX();
 		double ty = startPoint.getY();
 		
@@ -245,6 +259,8 @@ public class MyImageLabel extends JLabel {
 		double sy = maxImageHeight/(endPoint.getY() - startPoint.getY());
 		g.scale(sx, sy);
 		g.translate(-tx, -ty);
+		
+//		System.out.println(tx + " " + ty);
 		
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setColor(color1);
@@ -262,8 +278,10 @@ public class MyImageLabel extends JLabel {
 		
 		HashSet<Integer> events = imageDealer.featureTableList;
 //		System.out.println(events.size());
-		for(int label:events) {
-			drawEventBorder(g,label);
+		if(drawBorder) {
+			for(int label:events) {
+				drawEventBorder(g,label);
+			}
 		}
 	}
 	
@@ -274,7 +292,7 @@ public class MyImageLabel extends JLabel {
 		if(t < ts||t > te)
 			return;
 		ArrayList<int[]> boundary = imageDealer.fts.border.get(label);
-		g.setColor(new Color(217,217,25));
+		g.setColor(new Color(237,217,25));
 
 		int x = boundary.get(0)[0];
 		int y = boundary.get(0)[1];
@@ -311,8 +329,6 @@ public class MyImageLabel extends JLabel {
 		
 		int cnt = 0;
 		Color curColor = g.getColor();
-		Color textColor = new Color(curColor.getGreen(),curColor.getBlue(),curColor.getRed());
-		g.setColor(textColor);
 		HashMap<Integer, ArrayList<int[]>> borderMap = new HashMap<>();
 		for(Entry<Integer, ArrayList<int[]>> entry:connectedMap.entrySet()) {
 			ArrayList<int[]> points = entry.getValue();
@@ -333,6 +349,8 @@ public class MyImageLabel extends JLabel {
 			}
 			int centerX = sumX/points.size();
 			int centerY = sumY/points.size();
+//			System.out.println(centerX + " " + centerY);
+			
 			g.drawString(""+label, centerX-5, centerY-5);
 			
 			boolean[][] smallMap = new boolean[maxX-minX+1][maxY-minY+1];
@@ -385,8 +403,6 @@ public class MyImageLabel extends JLabel {
 		HashMap<Integer, ArrayList<int[]>> connectedMap = ConnectedComponents.twoPassConnect2D(region);
 		int cnt = 0;
 		Color curColor = g.getColor();
-		Color textColor = new Color(curColor.getGreen(),curColor.getBlue(),curColor.getRed());
-		g.setColor(textColor);
 		HashMap<Integer, ArrayList<int[]>> borderMap = new HashMap<>();
 		for(Entry<Integer, ArrayList<int[]>> entry:connectedMap.entrySet()) {
 			ArrayList<int[]> points = entry.getValue();
