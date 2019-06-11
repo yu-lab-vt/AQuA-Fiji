@@ -69,12 +69,14 @@ public class LabelRead extends SwingWorker<int[][][], Integer> {
 			case 2:
 				file = proPath + "Step2_Labels.ser"; break;
 			case 3:
-				file = proPath + "Step3_Labels.ser"; break;
+				file = proPath + "Step3_seMap_Labels.ser"; break;
 			case 4:
-				file = proPath + "Step4_Labels.ser"; break;
+				file = proPath + "Step3_Labels.ser"; break;
 			case 5:
-				file = proPath + "Step5_Labels.ser"; break;
+				file = proPath + "Step4_Labels.ser"; break;
 			case 6:
+				file = proPath + "Step5_Labels.ser"; break;
+			case 7:
 				file = proPath + "Step6_Labels.ser"; break;
 		}
 		

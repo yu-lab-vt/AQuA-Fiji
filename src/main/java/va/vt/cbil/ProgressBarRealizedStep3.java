@@ -215,6 +215,7 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		HashMap<Integer,ArrayList<int[]>> evtLst = evtTopresult.evtLst;
 		HashMap<Integer,ArrayList<int[]>> seLst = evtTopresult.seLst;
 		int[][][] datR = evtTopresult.datR;
+		int[][][] seMap = evtTopresult.seMap;
 		
 		// relabel
 		HashMap<Integer,ArrayList<int[]>> newEvtLst = new HashMap<>();
@@ -257,6 +258,13 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 			f = new FileOutputStream(new File(proPath + "ResultInStep3_SeLstAll.ser"));
 			o = new ObjectOutputStream(f);
 			o.writeObject(seLst);
+			o.close();
+			f.close();
+			
+			// seMap
+			f = new FileOutputStream(new File(proPath + "Step3_seMap_Labels.ser"));
+			o = new ObjectOutputStream(f);
+			o.writeObject(seMap);
 			o.close();
 			f.close();
 			
@@ -479,7 +487,7 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		
 		HashMap<Integer,ArrayList<int[]>> evtLst = label2idx(datL);			// checked
 		
-		return new EvtTopResult(riseLst,datR, evtLst, seLst,datL);
+		return new EvtTopResult(riseLst,datR, evtLst, seLst,datL,seMap);
 	}
 	
 	/**
@@ -490,16 +498,18 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		HashMap<Integer,RiseNode> riseLst = null;
 		int[][][] datR = null;
 		int[][][] datL = null;
+		int[][][] seMap = null;
 		HashMap<Integer,ArrayList<int[]>> evtLst = null;
 		HashMap<Integer,ArrayList<int[]>> seLst = null;
 		
 		public EvtTopResult(HashMap<Integer,RiseNode> riseLst, int[][][] datR, 
-				HashMap<Integer,ArrayList<int[]>> evtLst, HashMap<Integer,ArrayList<int[]>> seLst, int[][][] datL) {
+				HashMap<Integer,ArrayList<int[]>> evtLst, HashMap<Integer,ArrayList<int[]>> seLst, int[][][] datL, int[][][] seMap) {
 			this.riseLst = riseLst;
 			this.datR = datR;
 			this.evtLst = evtLst;
 			this.seLst = seLst;
 			this.datL = datL;
+			this.seMap = seMap;
 		}
 	}
 	
@@ -2405,7 +2415,8 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		
 		if(imageDealer.left.jTPStatus<3) {
 			imageDealer.left.jTPStatus = Math.max(imageDealer.left.jTPStatus, 3);
-			imageDealer.right.typeJCB.addItem("Step3: Events");
+			imageDealer.right.typeJCB.addItem("Step3a: Super Events");
+			imageDealer.right.typeJCB.addItem("Step3b: Events");
 		}
 //		imageDealer.right.typeJCB.setSelectedIndex(3);
 		

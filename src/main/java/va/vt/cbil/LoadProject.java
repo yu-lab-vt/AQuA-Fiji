@@ -193,7 +193,8 @@ public class LoadProject extends SwingWorker<Void, Integer> {
 			imageDealer.right.typeJCB.addItem("Step2: Super Voxels");
 		}
 		if(imageDealer.left.jTPStatus>=3) {
-			imageDealer.right.typeJCB.addItem("Step3: Events");
+			imageDealer.right.typeJCB.addItem("Step3a: Super Events");
+			imageDealer.right.typeJCB.addItem("Step3b: Events");
 		}
 		if(imageDealer.left.jTPStatus>=4) {
 			imageDealer.right.typeJCB.addItem("Step4: Events Cleaned");

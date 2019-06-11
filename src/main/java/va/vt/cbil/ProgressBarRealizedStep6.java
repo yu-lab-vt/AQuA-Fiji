@@ -325,7 +325,7 @@ public class ProgressBarRealizedStep6 extends SwingWorker<int[][][], Integer> {
 		}
 		
 		HashMap<Integer,ArrayList<int[]>> evtLst = label2idx(datL);			// checked
-		return new ProgressBarRealizedStep3.EvtTopResult(riseLst, datR, evtLst, seLst,datL);
+		return new ProgressBarRealizedStep3.EvtTopResult(riseLst, datR, evtLst, seLst,datL,seMap);
 	}
 	
 
