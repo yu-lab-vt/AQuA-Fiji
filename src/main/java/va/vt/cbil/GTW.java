@@ -1018,6 +1018,7 @@ public class GTW {
 		float[] refBase = sp2GraphResult.refBase;
 		ArrayList<Integer> source = sp2GraphResult.s;
 		ArrayList<Integer> sink = sp2GraphResult.t;
+		spLst = sp2GraphResult.spLst;
 		
 		// gtw
 		boolean[] idxGood = sp2GraphResult.idxGood;
@@ -2243,7 +2244,7 @@ public class GTW {
 			}
 		}
 		
-		return new Sp2GraphResult(ref,tst,refBase,s,t,idxGood);
+		return new Sp2GraphResult(ref,tst,refBase,s,t,idxGood,spLst);
 	}
 	
 	static class Sp2GraphResult{
@@ -2253,14 +2254,16 @@ public class GTW {
 		ArrayList<Integer> s = null;
 		ArrayList<Integer> t = null;
 		boolean[] idxGood = null;
+		HashMap<Integer, ArrayList<int[]>> spLst=null;
 		
-		public Sp2GraphResult(float[][] ref, float[][] tst, float[] refBase, ArrayList<Integer> s, ArrayList<Integer> t, boolean[] idxGood) {
+		public Sp2GraphResult(float[][] ref, float[][] tst, float[] refBase, ArrayList<Integer> s, ArrayList<Integer> t, boolean[] idxGood, HashMap<Integer, ArrayList<int[]>> spLst) {
 			this.ref = ref;
 			this.tst = tst;
 			this.refBase = refBase;
 			this.s = s;
 			this.t = t;
 			this.idxGood = idxGood;
+			this.spLst = spLst;
 		}
 		
 		

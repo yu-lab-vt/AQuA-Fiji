@@ -114,12 +114,8 @@ public class LoadProject extends SwingWorker<Void, Integer> {
 			oi.close();
 			fi.close();
 			
-			fi = new FileInputStream(new File(proPath + "nEvt.ser"));	
-			oi = new ObjectInputStream(fi);
-			int nEvt = (int)oi.readObject();
-			oi.close();
-			fi.close();
-			imageDealer.center.EvtNumber.setText(nEvt + "");
+			
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -195,6 +191,23 @@ public class LoadProject extends SwingWorker<Void, Integer> {
 		if(imageDealer.left.jTPStatus>=3) {
 			imageDealer.right.typeJCB.addItem("Step3a: Super Events");
 			imageDealer.right.typeJCB.addItem("Step3b: Events");
+			
+			try {
+				FileInputStream fi = null;
+				ObjectInputStream oi = null;
+				fi = new FileInputStream(new File(proPath + "nEvt.ser"));	
+				oi = new ObjectInputStream(fi);
+				int nEvt = (int)oi.readObject();
+				oi.close();
+				fi.close();
+				imageDealer.center.EvtNumber.setText(nEvt + "");
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
 		if(imageDealer.left.jTPStatus>=4) {
 			imageDealer.right.typeJCB.addItem("Step4: Events Cleaned");

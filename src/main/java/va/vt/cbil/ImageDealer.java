@@ -713,6 +713,7 @@ class ImageDealer {
 	}
 	
 	public BufferedImage addColor(BufferedImage curImg) {
+		adjustPoint(curImg);
 		int w = width;
 		int h = height;
 		
