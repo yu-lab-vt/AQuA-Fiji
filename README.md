@@ -1,6 +1,6 @@
 # AQuA Fiji plugin
 
-This is the site for the Fiji plugin of AQuA. 
+This is the site for the Fiji plugin of AQuA. Now it can only work in windows system. In linux and Mac systems, the interface has some problem. We are working on it.
 
 For details, please visit [the main repository](https://github.com/yu-lab-vt/AQuA).
 
