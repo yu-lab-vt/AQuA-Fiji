@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -140,6 +141,8 @@ class RightGroupPanel {
 	
 	public void setting() {
 		// right1
+		
+		
 		layers.setOpaque(true);
 		layers.setBackground(UI_Beauty.blue);
 		layers.setForeground(Color.WHITE);
@@ -154,6 +157,11 @@ class RightGroupPanel {
 		contrastSlider.setPreferredSize(new Dimension(350,20));
 		contrastSliderl.setPreferredSize(new Dimension(175,20));
 		contrastSliderr.setPreferredSize(new Dimension(175,20));
+		
+		rightLabel1.setFont(new Font("Courier", Font.BOLD, 14));
+		minLabel.setFont(new Font("Courier", Font.BOLD, 12));
+		maxLabel.setFont(new Font("Courier", Font.BOLD, 12));
+		brightnessLabel.setFont(new Font("Courier", Font.BOLD, 12));
 		
 		// right2
 		rightLabel2.setHorizontalAlignment(JLabel.CENTER );
@@ -182,6 +190,19 @@ class RightGroupPanel {
 		landIDLabel2.setBorder(BorderFactory.createEtchedBorder());
 		landIDLabel2.setEnabled(false);
 		
+		rightLabel2.setFont(new Font("Courier", Font.BOLD, 14));
+		typeLabel.setFont(new Font("Courier", Font.BOLD, 12));
+		featureLabel.setFont(new Font("Courier", Font.BOLD, 12));
+		colorLabel.setFont(new Font("Courier", Font.BOLD, 12));
+		transformLabel.setFont(new Font("Courier", Font.BOLD, 12));
+		divideLabel.setFont(new Font("Courier", Font.BOLD, 12));
+		proDirLabel.setFont(new Font("Courier", Font.BOLD, 12));
+		landIDLabel.setFont(new Font("Courier", Font.BOLD, 12));
+		updateOverlayButton.setFont(new Font("Courier", Font.BOLD, 12));
+		setColorMap.setFont(new Font("Courier", Font.BOLD, 12));
+		
+
+		
 		// right 3
 		
 		minLabel2.setPreferredSize(new Dimension(400,15));
@@ -190,6 +211,9 @@ class RightGroupPanel {
 		maxSlider2.setPreferredSize(new Dimension(350,20));
 		brightnessLabel2.setPreferredSize(new Dimension(400,15));
 		contrastSlider2.setPreferredSize(new Dimension(350,20));
+		minLabel2.setFont(new Font("Courier", Font.BOLD, 12));
+		maxLabel2.setFont(new Font("Courier", Font.BOLD, 12));
+		brightnessLabel2.setFont(new Font("Courier", Font.BOLD, 12));
 		
 		// right 4
     	favorite.setOpaque(true);
@@ -205,6 +229,13 @@ class RightGroupPanel {
     	eventID.setPreferredSize(new Dimension(80,15));
     	eventText.setPreferredSize(new Dimension(80,15));
     	addToFavorite.setPreferredSize(new Dimension(120,15));
+    	selectAllButton.setFont(new Font("Courier", Font.BOLD, 12));
+    	deleteButton.setFont(new Font("Courier", Font.BOLD, 12));
+    	details.setFont(new Font("Courier", Font.BOLD, 12));
+    	showcurvesButton.setFont(new Font("Courier", Font.BOLD, 12));
+    	savecurvesButton.setFont(new Font("Courier", Font.BOLD, 12));
+    	eventID.setFont(new Font("Courier", Font.BOLD, 12));
+    	addToFavorite.setFont(new Font("Courier", Font.BOLD, 11));
     	
     	
     	rowBlank1.setPreferredSize(new Dimension(400,10));
@@ -228,6 +259,10 @@ class RightGroupPanel {
     	intensitySlider.setPreferredSize(new Dimension(350,20));
     	sizeMinSlider.setPreferredSize(new Dimension(350,20));
     	sizeMaxSlider.setPreferredSize(new Dimension(350,20));
+    	intensity.setFont(new Font("Courier", Font.BOLD, 12));
+    	sizeMin.setFont(new Font("Courier", Font.BOLD, 12));
+    	sizeMax.setFont(new Font("Courier", Font.BOLD, 12));
+    	
 	}
 	
 	private void setTable(){

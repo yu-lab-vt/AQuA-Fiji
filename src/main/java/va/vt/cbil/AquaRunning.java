@@ -1,16 +1,9 @@
 package va.vt.cbil;
 
 import java.awt.Dimension;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
-
-import ij.plugin.PlugIn;
 
 public class AquaRunning{
 	public void start(String path, String proPath, boolean load, float ts, float ss, int border, int index) {
@@ -20,7 +13,7 @@ public class AquaRunning{
 		aquaWindow.setUndecorated(false);
 		aquaWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		aquaWindow.setLocationRelativeTo(null);
-		aquaWindow.setMinimumSize(new Dimension(1650,900));
+		aquaWindow.setMinimumSize(new Dimension(1660,900));
 		aquaWindow.setResizable(false);
 		
 		/*  ----------------------------- ImagePlus ----------------------------------- */
@@ -88,10 +81,11 @@ public class AquaRunning{
 	}
 	
 	public static void  main(String[] args) {
-		String path = "D:\\ExVivoSuppRaw.tif";
-		String propath = "D:\\TestFolder\\";
+		String path = "/home/mixl18/Downloads/InVivoSuppRaw2.tif";
+		String propath = "/home/mixl18/Downloads/NewFOlder\\";
 		AquaRunning aq = new AquaRunning();
 		aq.start(path,propath,false,1,1,10,1);
+		
 		
 	}
 }

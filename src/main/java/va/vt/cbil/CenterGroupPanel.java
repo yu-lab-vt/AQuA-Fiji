@@ -119,24 +119,30 @@ class CenterGroupPanel {
 		
 		
 		int fontsize = 11;
-		status.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		panButton.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		resetButton.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		sideButton.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		gaussfilter.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		cL11.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		cL12.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		panButton.setPreferredSize(new Dimension(110,20));
+		panButton.setPreferredSize(new Dimension(105,20));
 		resetButton.setPreferredSize(new Dimension(70,20));
-		sideButton.setPreferredSize(new Dimension(105,20));
+		sideButton.setPreferredSize(new Dimension(115,20));
 		gaussfilter.setPreferredSize(new Dimension(70,20));
 		cL11.setPreferredSize(new Dimension(50,20));
 		cL12.setPreferredSize(new Dimension(125,20));
+		status.setFont(new Font("Courier", Font.BOLD, fontsize));
+		panButton.setFont(new Font("Courier", Font.BOLD, fontsize));
+		resetButton.setFont(new Font("Courier", Font.BOLD, fontsize));
+		sideButton.setFont(new Font("Courier", Font.BOLD, fontsize-1));
+		gaussfilter.setFont(new Font("Courier", Font.BOLD, fontsize));
+		cL11.setFont(new Font("Courier", Font.BOLD, fontsize-1));
+		cL12.setFont(new Font("Courier", Font.BOLD, fontsize-1));
 		
 		gaussfilter.setEnabled(false);
 		
 		// center2
 		center2.setPreferredSize(new Dimension(818,520));
+		playButton.setPreferredSize(new Dimension(65,25));
+		pauseButton.setPreferredSize(new Dimension(70,25));
+		playButton.setFont(new Font("Courier", Font.BOLD, fontsize));
+		pauseButton.setFont(new Font("Courier", Font.BOLD, fontsize));
+		prev.setFont(new Font("Courier", Font.BOLD, fontsize));
+		next.setFont(new Font("Courier", Font.BOLD, fontsize));
 		
 			// imageLabel
 		float scal = (float)imageDealer.width/imageDealer.height;
@@ -161,13 +167,16 @@ class CenterGroupPanel {
 		prev.setPreferredSize(new Dimension(48,25));
 		next.setPreferredSize(new Dimension(48,25));
 		imageSlider.setMinorTickSpacing(1); 		
-		imageSlider.setPreferredSize(new Dimension(452,20));
+		imageSlider.setPreferredSize(new Dimension(432,20));
 		nEvt.setPreferredSize(new Dimension(50,20));
+		nEvt.setFont(new Font("Courier", Font.BOLD, fontsize));
 //		nEvt.setAlignmentX(JLabel.CENTER);
 		EvtNumber.setPreferredSize(new Dimension(50,20));
 		EvtNumber.setOpaque(true);
 		EvtNumber.setBackground(Color.white);
 //		EvtNumber.setAlignmentX(JLabel.CENTER);
+		
+		
 		// center4
 		bar.setPreferredSize(new Dimension(808,12));
 		bar.setOpaque(true);

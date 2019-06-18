@@ -54,8 +54,8 @@ class LeftGroupPanel {
 	
 	// left1
 	JLabel dirLabel = new JLabel(" Direction, region, landmarks");
-	JLabel cellBoundary = new JLabel(" Cell boundary");
-	JLabel landmark = new JLabel(" Landmark (like soma)");
+	JLabel cellBoundary = new JLabel("Cell boundary");
+	JLabel landmark = new JLabel("Landmark (soma)");
 	JToggleButton addLeft11 = new JToggleButton("Add");
 	JToggleButton addLeft12 = new JToggleButton("Add");
 	JToggleButton removeLeft11 = new JToggleButton("Remove");
@@ -277,17 +277,26 @@ class LeftGroupPanel {
 		removeLeft11.setPreferredSize(new Dimension(70,20));
 		removeLeft12.setPreferredSize(new Dimension(70,20));
 		
+		drawAnterior.setPreferredSize(new Dimension(125,20));
+		maskBuilder.setPreferredSize(new Dimension(125,20));
+		updateFeatures.setPreferredSize(new Dimension(125,20));
+		
 		int fontsize = 10;
-		cellBoundary.setFont(new Font("Dialog", Font.BOLD, fontsize+1));
-		landmark.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		addLeft11.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		addLeft12.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		save11.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		save12.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		load11.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		load12.setFont(new Font("Dialog", Font.BOLD, fontsize));
-		removeLeft11.setFont(new Font("Dialog", Font.BOLD, fontsize-2));
-		removeLeft12.setFont(new Font("Dialog", Font.BOLD, fontsize-2));
+		drawAnterior.setFont(new Font("Courier", Font.BOLD, 12));
+		maskBuilder.setFont(new Font("Courier", Font.BOLD, 12));
+		updateFeatures.setFont(new Font("Courier", Font.BOLD, 10));
+		
+		
+		cellBoundary.setFont(new Font("Courier", Font.BOLD, 14));
+		landmark.setFont(new Font("Courier", Font.BOLD, 14));
+		addLeft11.setFont(new Font("Courier", Font.BOLD, 10));
+		addLeft12.setFont(new Font("Courier", Font.BOLD, 10));
+		save11.setFont(new Font("Courier", Font.BOLD, 10));
+		save12.setFont(new Font("Courier", Font.BOLD, 10));
+		load11.setFont(new Font("Courier", Font.BOLD, 10));
+		load12.setFont(new Font("Courier", Font.BOLD, 10));
+		removeLeft11.setFont(new Font("Courier", Font.BOLD, 9));
+		removeLeft12.setFont(new Font("Courier", Font.BOLD, 9));
 		// left2
 		detLabel.setOpaque(true);
 		detLabel.setBackground(UI_Beauty.blue);
@@ -311,6 +320,9 @@ class LeftGroupPanel {
     	jTPL11.setPreferredSize(new Dimension(270,20));
     	jTPL12.setPreferredSize(new Dimension(270,20));
     	jTPL13.setPreferredSize(new Dimension(270,20));
+    	jTPL11.setFont(new Font("Courier", Font.BOLD, 13));
+    	jTPL12.setFont(new Font("Courier", Font.BOLD, 13));
+    	jTPL13.setFont(new Font("Courier", Font.BOLD, 13));
     		
     		// jTP2
     	jTF21.setPreferredSize(new Dimension(80,20));
@@ -319,6 +331,8 @@ class LeftGroupPanel {
     	jTF22.setHorizontalAlignment(JTextField.CENTER);
     	jTPL21.setPreferredSize(new Dimension(270,20));
     	jTPL22.setPreferredSize(new Dimension(270,20));
+    	jTPL21.setFont(new Font("Courier", Font.BOLD, 13));
+    	jTPL22.setFont(new Font("Courier", Font.BOLD, 13));
     	
     		// jTP3
     	jTF31.setPreferredSize(new Dimension(80,20));
@@ -330,11 +344,16 @@ class LeftGroupPanel {
     	jTPL31.setPreferredSize(new Dimension(270,20));
     	jTPL32.setPreferredSize(new Dimension(270,20));
     	jTPL33.setPreferredSize(new Dimension(270,20));
+    	jTPL31.setFont(new Font("Courier", Font.BOLD, 13));
+    	jTPL32.setFont(new Font("Courier", Font.BOLD, 13));
+    	jTPL33.setFont(new Font("Courier", Font.BOLD, 13));
+
     	
     		// jTP4
     	jTF41.setPreferredSize(new Dimension(80,20));
     	jTF41.setHorizontalAlignment(JTextField.CENTER);
     	jTPL41.setPreferredSize(new Dimension(270,20));
+    	jTPL41.setFont(new Font("Courier", Font.BOLD, 13));
     	
     		// jTP5
     	jTF52.setPreferredSize(new Dimension(80,20));
@@ -347,14 +366,20 @@ class LeftGroupPanel {
     	jTPL52.setPreferredSize(new Dimension(270,20));
     	jTPL53.setPreferredSize(new Dimension(270,20));
     	jTPL54.setPreferredSize(new Dimension(270,20));
+    	jTPL51.setFont(new Font("Courier", Font.BOLD, 13));
+    	jTPL52.setFont(new Font("Courier", Font.BOLD, 13));
+    	jTPL53.setFont(new Font("Courier", Font.BOLD, 13));
+    	jTPL54.setFont(new Font("Courier", Font.BOLD, 13));
     	
     		// jTP6
     	jTPL61.setPreferredSize(new Dimension(270,20));
+    	jTPL61.setFont(new Font("Courier", Font.BOLD, 13));
     	
     		// jTP7
     	jTPL71.setPreferredSize(new Dimension(270,20));
-    	
+    	jTPL71.setFont(new Font("Courier", Font.BOLD, 13));
     	// left2
+    	
     	jTP.add("Signal", jTP1);
     	jTP.add("Voxel", jTP2);
     	jTP.add("Event", jTP3);
@@ -363,6 +388,8 @@ class LeftGroupPanel {
     	jTP.add("Recon", jTP6);
     	jTP.add("Fea", jTP7);
     	
+    	jTP.setFont(new Font("Courier", Font.BOLD, 12));
+    	
     	jTP.setEnabledAt(1, false);
     	jTP.setEnabledAt(2, false);
     	jTP.setEnabledAt(3, false);
@@ -370,7 +397,13 @@ class LeftGroupPanel {
     	jTP.setEnabledAt(5, false);
     	jTP.setEnabledAt(6, false);
     	
-    	
+    	backButton.setFont(new Font("Courier", Font.BOLD, 12));
+    	runButton.setFont(new Font("Courier", Font.BOLD, 12));
+    	nextButton.setFont(new Font("Courier", Font.BOLD, 12));
+    	saveopts.setFont(new Font("Courier", Font.BOLD, 12));
+    	loadopts.setFont(new Font("Courier", Font.BOLD, 12));
+    	runAllButton.setFont(new Font("Courier", Font.BOLD, 12));
+
     	// left 3
     	proofReading.setOpaque(true);
     	proofReading.setBackground(UI_Beauty.blue);
@@ -381,6 +414,10 @@ class LeftGroupPanel {
     	addAllFiltered.setPreferredSize(new Dimension(190,25));
     	featuresPlot.setPreferredSize(new Dimension(190,25));
     	
+    	viewFavourite.setFont(new Font("Courier", Font.BOLD, 12));
+    	deleteRestore.setFont(new Font("Courier", Font.BOLD, 12));
+    	addAllFiltered.setFont(new Font("Courier", Font.BOLD, 12));
+    	featuresPlot.setFont(new Font("Courier", Font.BOLD, 12));
     		// Table
     	setTable();
     	
@@ -394,6 +431,11 @@ class LeftGroupPanel {
     	export.setPreferredSize(new Dimension(400,20));
     	events.setPreferredSize(new Dimension(380,30));
     	movie.setPreferredSize(new Dimension(380,30));
+    	
+    	events.setFont(new Font("Courier", Font.BOLD, 14));
+    	movie.setFont(new Font("Courier", Font.BOLD, 14));
+    	exportButton.setFont(new Font("Courier", Font.BOLD, 12));
+    	restart.setFont(new Font("Courier", Font.BOLD, 12));
     	
     	rowBlank1.setPreferredSize(new Dimension(400,15));
     	rowBlank2.setPreferredSize(new Dimension(400,15));
@@ -417,16 +459,28 @@ class LeftGroupPanel {
     	self1.setPreferredSize(new Dimension(80,20));
     	folder1.setPreferredSize(new Dimension(80,20));
     	file1.setPreferredSize(new Dimension(80,20));
+    	region.setFont(new Font("Courier", Font.BOLD, 12));
+    	self1.setFont(new Font("Courier", Font.BOLD, 12));
+    	folder1.setFont(new Font("Courier", Font.BOLD, 12));
+    	file1.setFont(new Font("Courier", Font.BOLD, 12));
     	
     	regionMaker.setPreferredSize(new Dimension(100,20));
     	self2.setPreferredSize(new Dimension(80,20));
     	folder2.setPreferredSize(new Dimension(80,20));
     	file2.setPreferredSize(new Dimension(80,20));
+    	regionMaker.setFont(new Font("Courier", Font.BOLD, 12));
+    	self2.setFont(new Font("Courier", Font.BOLD, 12));
+    	folder2.setFont(new Font("Courier", Font.BOLD, 12));
+    	file2.setFont(new Font("Courier", Font.BOLD, 12));
     	
     	landMark.setPreferredSize(new Dimension(100,20));
     	self3.setPreferredSize(new Dimension(80,20));
     	folder3.setPreferredSize(new Dimension(80,20));
     	file3.setPreferredSize(new Dimension(80,20));
+    	landMark.setFont(new Font("Courier", Font.BOLD, 12));
+    	self3.setFont(new Font("Courier", Font.BOLD, 12));
+    	folder3.setFont(new Font("Courier", Font.BOLD, 12));
+    	file3.setFont(new Font("Courier", Font.BOLD, 12));
     	
     	setBuilderTable();
     	builderRemove.setPreferredSize(new Dimension(100,20));
@@ -435,9 +489,19 @@ class LeftGroupPanel {
     	builderMAdd.setPreferredSize(new Dimension(80,20));
     	builderMRemove.setPreferredSize(new Dimension(80,20));
     	
+    	builderRemove.setFont(new Font("Courier", Font.BOLD, 12));
+    	buiderManualLabel.setFont(new Font("Courier", Font.BOLD, 10));
+    	builderMClear.setFont(new Font("Courier", Font.BOLD, 12));
+    	builderMAdd.setFont(new Font("Courier", Font.BOLD, 12));
+    	builderMRemove.setFont(new Font("Courier", Font.BOLD, 12));
+    	
     	role.setPreferredSize(new Dimension(180,20));
     	combineRegion.setPreferredSize(new Dimension(180,20));
     	combineLandmark.setPreferredSize(new Dimension(180,20));
+    	role.setFont(new Font("Courier", Font.BOLD, 12));
+    	combineRegion.setFont(new Font("Courier", Font.BOLD, 12));
+    	combineLandmark.setFont(new Font("Courier", Font.BOLD, 12));
+    	
     	roleJCB.setPreferredSize(new Dimension(180,20));
     	combineRegionJCB.setPreferredSize(new Dimension(180,20));
     	combineLandmarkJCB.setPreferredSize(new Dimension(180,20));
@@ -446,6 +510,8 @@ class LeftGroupPanel {
     	combineLandmarkJCB.setBackground(Color.WHITE);
     	apply.setPreferredSize(new Dimension(150,20));
     	discard.setPreferredSize(new Dimension(150,20));
+    	apply.setFont(new Font("Courier", Font.BOLD, 12));
+    	discard.setFont(new Font("Courier", Font.BOLD, 12));
 
 	}
 	
@@ -1321,6 +1387,8 @@ class LeftGroupPanel {
 
 					@Override
 					public void run() {
+						jTP.setSelectedIndex(0);
+						boolean startRun = true;
 						while(true) {
 							try {
 								Thread.sleep(100);
@@ -1329,13 +1397,27 @@ class LeftGroupPanel {
 								e1.printStackTrace();
 							}
 							if(!imageDealer.running) {
-//								System.out.println("run");
-								runButton.doClick();
-								
+//								System.out.println("run");						
+								try {
+									if(startRun) {
+										runButton.doClick();
+										Thread.sleep(200);
+										startRun = false;
+									}else {
+										nextButton.doClick();
+										Thread.sleep(200);
+										runButton.doClick();
+										Thread.sleep(200);
+									}
+									
+									if(curStatus==6)
+										break;
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 //								System.out.println("next");
-								if(curStatus==6)
-									break;
-								nextButton.doClick();
+								
 								
 //								Thread.sleep(100);
 								
