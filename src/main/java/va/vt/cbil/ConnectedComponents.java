@@ -41,7 +41,7 @@ public class ConnectedComponents {
 						}else {
 							label[i][j] = min;
 							for(int ii=1;ii<labelList.size();ii++) {
-								union_connect(labelList.get(0),labelList.get(ii),list);
+								union_connect(min,labelList.get(ii),list);
 							}
 						}
 					}
@@ -109,7 +109,7 @@ public class ConnectedComponents {
 						}else {
 							label[i][j] = min;
 							for(int ii=1;ii<labelList.size();ii++) {
-								union_connect(labelList.get(0),labelList.get(ii),list);
+								union_connect(min,labelList.get(ii),list);
 							}
 						}
 					}
@@ -182,7 +182,7 @@ public class ConnectedComponents {
 						}else {
 							label[i][j] = min;
 							for(int ii=1;ii<labelList.size();ii++) {
-								union_connect(labelList.get(0),labelList.get(ii),list);
+								union_connect(min,labelList.get(ii),list);
 							}
 						}
 					}
@@ -255,7 +255,7 @@ public class ConnectedComponents {
 					}else {
 						label[i][j] = min;
 						for(int ii=1;ii<labelList.size();ii++) {
-							union_connect(labelList.get(0),labelList.get(ii),list);
+							union_connect(min,labelList.get(ii),list);
 						}
 					}
 				}
@@ -324,7 +324,7 @@ public class ConnectedComponents {
 					}else {
 						label[i][j] = min;
 						for(int ii=1;ii<labelList.size();ii++) {
-							union_connect(labelList.get(0),labelList.get(ii),list);
+							union_connect(min,labelList.get(ii),list);
 						}
 					}
 				}
@@ -392,7 +392,7 @@ public class ConnectedComponents {
 					}else {
 						label[i][j] = min;
 						for(int ii=1;ii<labelList.size();ii++) {
-							union_connect(labelList.get(0),labelList.get(ii),list);
+							union_connect(min,labelList.get(ii),list);
 						}
 					}
 				}
@@ -475,7 +475,7 @@ public class ConnectedComponents {
 						}else {
 							label[i][j][k] = min;
 							for(int ii=1;ii<labelList.size();ii++) {
-								union_connect(labelList.get(0),labelList.get(ii),list);
+								union_connect(min,labelList.get(ii),list);
 							}
 						}
 						
@@ -564,7 +564,7 @@ public class ConnectedComponents {
 						}else {
 							label[i][j][k] = min;
 							for(int ii=1;ii<labelList.size();ii++) {
-								union_connect(labelList.get(0),labelList.get(ii),list);
+								union_connect(min,labelList.get(ii),list);
 							}
 						}
 						
@@ -640,7 +640,7 @@ public class ConnectedComponents {
 					}else {
 						label[i][j] = min;
 						for(int ii=1;ii<labelList.size();ii++) {
-							union_connect(labelList.get(0),labelList.get(ii),list);
+							union_connect(min,labelList.get(ii),list);
 						}
 					}
 				}
@@ -711,7 +711,7 @@ public class ConnectedComponents {
 					}else {
 						label[i][j] = min;
 						for(int ii=1;ii<labelList.size();ii++) {
-							union_connect(labelList.get(0),labelList.get(ii),list);
+							union_connect(min,labelList.get(ii),list);
 						}
 					}
 				}
@@ -766,8 +766,12 @@ public class ConnectedComponents {
 	
 	public static int union_find(int label, ArrayList<Integer> list){
 		int i = label;
-		while(list.get(i)!=0)
+		
+		while(list.get(i)!=0) {
 			i = list.get(i);
+		}
+		if(i!=label)
+			list.set(label, i);
 		return i;
 	}
 	
