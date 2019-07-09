@@ -107,7 +107,8 @@ class ImageDealer {
 	int[][] landMarkLabel = null;
 	ArrayList<ArrayList<Point>> regionMarkLst = null;
 	ArrayList<ArrayList<Point>> landMarkLst = null;
-	
+	HashMap<Integer,String> nameLst = null;
+	HashMap<Integer,String> nameLstLandMark = null;
 	
 	// result Curve
 	float[][][] dffMat = null;
@@ -120,6 +121,10 @@ class ImageDealer {
 		imgPlus = new ImagePlus(path);
 		opts.maxValueDat = (int) (Math.pow(2,imgPlus.getBitDepth())-1);
 		
+		// filename
+		String[] words = path.split("\\\\");
+		opts.filename = words[words.length-1];
+				
 		width = imgPlus.getWidth();
 		height = imgPlus.getHeight();
 //		System.out.println(width + " " + height);
@@ -140,6 +145,8 @@ class ImageDealer {
 		maxImage = new float[width][height];
 		curBuilderImage = new float[width][height];
 		
+		nameLst = new HashMap<>();
+		nameLstLandMark = new HashMap<>();
 		if(border!=0) {
 			for(int x = border;x<width-border;x++) {
 				for(int y = border;y<height-border;y++) {
@@ -148,6 +155,8 @@ class ImageDealer {
 				}
 			}
 		}
+		nameLst.put(1,1+"");
+		
 		
 		for(int k = 1;k<=pages;k++) {
 			imgPlus.setPosition(k);
@@ -369,13 +378,15 @@ class ImageDealer {
 						leftImageLabel.setDrawBorder(false);
 						leftResult = dealRisingMap(center.colorbarleft);
 						center.colorbarleft.drawColor = true;
-						
 					}
 					break;
 				case 3:
 					leftResult = dealRaw(maxImage,contrastl);
 					break;
 				case 4:
+					leftResult = dealRaw(avgImage,contrastl);
+					break;
+				case 5:
 					if(left.jTPStatus>=1) {
 						leftResult = dealDF(contrastl);
 					}
@@ -407,6 +418,9 @@ class ImageDealer {
 					rightResult = dealRaw(maxImage,contrastr);
 					break;
 				case 4:
+					rightResult = dealRaw(avgImage,contrastr);
+					break;
+				case 5:
 					if(left.jTPStatus>=1) {
 						rightResult = dealDF(contrastr);
 					}
@@ -940,7 +954,7 @@ class ImageDealer {
 			}
 			int frame = fts.curve.tBegin.get(nEvt);
 			float size = fts.basic.area.get(nEvt);
-			float duration = fts.curve.width55.get(nEvt);
+			float duration = fts.curve.duration.get(nEvt);
 			float dffMax = fts.curve.dffMax.get(nEvt);
 			float tau = fts.curve.decayTau.get(nEvt); 
 			right.model.addRow(new Object[] {new Integer(rowNumber+1),new Boolean(false),new Integer(nEvt),new Integer(frame+1),new Float(size),new Float(duration),new Float(dffMax),new Float(tau)});
@@ -971,7 +985,7 @@ class ImageDealer {
 			int frame = fts.curve.tBegin.get(nEvt);
 			center.imageSlider.setValue(frame);
 			float size = fts.basic.area.get(nEvt);
-			float duration = fts.curve.width55.get(nEvt);
+			float duration = fts.curve.duration.get(nEvt);
 			float dffMax = fts.curve.dffMax.get(nEvt);
 			float tau = fts.curve.decayTau.get(nEvt); 
 			right.model.addRow(new Object[] {new Integer(rowNumber+1),new Boolean(false),new Integer(nEvt),new Integer(frame+1),new Float(size),new Float(duration),new Float(dffMax),new Float(tau)});

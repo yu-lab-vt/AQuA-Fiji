@@ -393,25 +393,31 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 			
 		showTime();
 		HashMap<Integer,ArrayList<int[]>> seLst = label2idx(seMap);									// checked
+		// Clean super events
+		seMap = new int[width][height][pages];
+		HashMap<Integer,ArrayList<int[]>> seLstNew = new HashMap<>();
+		int cntSE = 0;
+		for(Entry<Integer, ArrayList<int[]>> entry:seLst.entrySet()) {
+			ArrayList<int[]> pix = entry.getValue();
+			HashSet<Integer> pix2D = new HashSet<>();
+			for(int[] p:pix) {
+				pix2D.add(p[0]*changeParameter+p[1]);
+				if(pix2D.size()>opts.minSize) {
+					cntSE++;
+					break;
+				}
+			}
+			if(pix2D.size()>opts.minSize) {
+				seLstNew.put(cntSE, pix);
+				for(int[] p:pix) {
+					seMap[p[0]][p[1]][p[2]] = cntSE;
+				}
+			}
+		}
+		seLst = seLstNew;
+		
 		System.out.println(seLst.size());
 		showTime();
-		
-//		try {
-//			FileOutputStream f = null;
-//			ObjectOutputStream o = null;
-//			
-//			f = new FileOutputStream(new File("D:\\New Folder212\\" + "seMap.ser"));
-//			o = new ObjectOutputStream(f);
-//			o.writeObject(seMap);
-//			o.close();
-//			f.close();
-//			
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		
 		
 		// super event to events
 		System.out.println("Detecting events ...");
@@ -483,11 +489,38 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 			}
 			addToRisingMap(riseLst, evtMap, dlyMap, nEvt, nEvt0, rghs, rghe, rgws, rgwe, rgts, rgte, rgtSels, rgtSele);		// checked
 			nEvt = nEvt + nEvt0;	// checked
+			imageDealer.center.EvtNumber.setText(nEvt+"");
 		}
 		
 		HashMap<Integer,ArrayList<int[]>> evtLst = label2idx(datL);			// checked
 		
-		return new EvtTopResult(riseLst,datR, evtLst, seLst,datL,seMap);
+		// clean the events less than opts.minSize
+		datL = new int[width][height][pages];
+		HashMap<Integer,ArrayList<int[]>> evtLstNew = new HashMap<>();
+		HashMap<Integer,RiseNode> riseLstNew = new HashMap<>();
+		int cnt = 0;
+		for(Entry<Integer, ArrayList<int[]>> entry:evtLst.entrySet()) {
+			ArrayList<int[]> pix = entry.getValue();
+			HashSet<Integer> pix2D = new HashSet<>();
+			for(int[] p:pix) {
+				pix2D.add(p[0]*changeParameter+p[1]);
+				if(pix2D.size()>opts.minSize) {
+					cnt++;
+					break;
+				}
+			}
+			if(pix2D.size()>opts.minSize) {
+				evtLstNew.put(cnt, pix);
+				RiseNode curRiseNode = riseLst.get(entry.getKey());
+				riseLstNew.put(cnt, curRiseNode);
+				for(int[] p:pix) {
+					datL[p[0]][p[1]][p[2]] = cnt;
+				}
+			}
+		}
+		
+		
+		return new EvtTopResult(riseLstNew,datR, evtLstNew, seLst,datL,seMap);
 	}
 	
 	/**

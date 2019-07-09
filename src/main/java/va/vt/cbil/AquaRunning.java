@@ -50,6 +50,7 @@ public class AquaRunning{
 		if(load)
 			imageDealer.load(proPath);
 		
+		aquaWindow.setTitle("AQuA: " + imageDealer.opts.filename);
 
 		aquaWindow.setVisible(true);
 		try {
@@ -81,8 +82,8 @@ public class AquaRunning{
 	}
 	
 	public static void  main(String[] args) {
-		String path = "/home/mixl18/Downloads/InVivoSuppRaw2.tif";
-		String propath = "/home/mixl18/Downloads/NewFOlder\\";
+		String path = "D:\\Test.tif";
+		String propath = "D:\\Tfolder2\\";
 		AquaRunning aq = new AquaRunning();
 		aq.start(path,propath,false,1,1,10,1);
 		

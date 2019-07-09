@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -76,9 +77,9 @@ class CenterGroupPanel {
 	
 	// Side by side
 	int length = 400;
-	String[] leftJCBString = {"Raw", "Raw + overlay", "Rising map", "Maximum projection","dF"};
+	String[] leftJCBString = {"Raw", "Raw + overlay", "Rising map", "Maximum projection","Average projection","dF"};
 	JComboBox<String> leftJCB = new JComboBox<String>(leftJCBString);
-	String[] rightJCBString = {"Raw", "Raw + overlay", "Rising map", "Maximum projection","dF"};
+	String[] rightJCBString = {"Raw", "Raw + overlay", "Rising map", "Maximum projection","Average projection","dF"};
 	JComboBox<String> rightJCB = new JComboBox<String>(rightJCBString);
 	JPanel leftPanel = new JPanel();
 	JPanel leftImagePanel = new JPanel();
@@ -119,6 +120,15 @@ class CenterGroupPanel {
 		
 		
 		int fontsize = 11;
+		panButton.setMargin(new Insets(0,0,0,0));
+		resetButton.setMargin(new Insets(0,0,0,0));
+		sideButton.setMargin(new Insets(0,0,0,0));
+		gaussfilter.setMargin(new Insets(0,0,0,0));
+		playButton.setMargin(new Insets(0,0,0,0));
+		pauseButton.setMargin(new Insets(0,0,0,0));
+		prev.setMargin(new Insets(0,0,0,0));
+		next.setMargin(new Insets(0,0,0,0));
+		
 		panButton.setPreferredSize(new Dimension(105,20));
 		resetButton.setPreferredSize(new Dimension(70,20));
 		sideButton.setPreferredSize(new Dimension(115,20));

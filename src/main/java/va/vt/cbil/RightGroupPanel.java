@@ -426,7 +426,9 @@ class RightGroupPanel {
 		
 		
 		
-		right3.setVisible(false);
+//		right3.setVisible(false);
+		minSlider2.setEnabled(false);
+		maxSlider2.setEnabled(false);
 		right4.setVisible(false);
 	}
 	
@@ -1010,7 +1012,8 @@ class RightGroupPanel {
 	}
 	
 	public void allFinished() {
-		right3.setVisible(true);
+		minSlider2.setEnabled(true);
+		maxSlider2.setEnabled(true);
 		right4.setVisible(true);
 		featureJCB.addItem("Basic - Area");
 		featureJCB.addItem("Basic - Perimeter");

@@ -51,6 +51,7 @@ class Curve implements Serializable{
 	HashMap<Integer, Float> width55 = null;
 	HashMap<Integer, Float> width11 = null;
 	HashMap<Integer, Float> decayTau = null;
+	HashMap<Integer, Float> duration = null;
 	
 	
 	public Curve() {
@@ -67,6 +68,7 @@ class Curve implements Serializable{
 		width55 = new HashMap<>();
 		width11 = new HashMap<>();
 		decayTau = new HashMap<>();
+		duration = new HashMap<>();
 	}
 	
 	public void addQuickFeature(int label, float dffMaxZ, float dffMaxPval, int[] rgT1, int its, int ite) {
@@ -75,6 +77,7 @@ class Curve implements Serializable{
 		this.rgt1.put(label, rgT1);
 		this.tBegin.put(label, its);
 		this.tEnd.put(label, ite);
+		duration.put(label, (ite-its+1)*1f);
 	}
 	
 }

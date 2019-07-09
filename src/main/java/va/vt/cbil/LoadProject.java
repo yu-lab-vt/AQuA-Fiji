@@ -102,6 +102,12 @@ public class LoadProject extends SwingWorker<Void, Integer> {
 			oi.close();
 			fi.close();
 			
+			fi = new FileInputStream(new File(proPath + "LandMarkLabels.ser"));	
+			oi = new ObjectInputStream(fi);
+			imageDealer.landMarkLabel = (int[][])oi.readObject();
+			oi.close();
+			fi.close();
+			
 			fi = new FileInputStream(new File(proPath + "JTPStatus.ser"));	
 			oi = new ObjectInputStream(fi);
 			imageDealer.left.jTPStatus = (int)oi.readObject();

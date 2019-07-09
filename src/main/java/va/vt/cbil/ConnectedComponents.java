@@ -721,8 +721,9 @@ public class ConnectedComponents {
 		HashMap<Integer,Integer> rootMap = new HashMap<>();
 		int cnt = 1;
 		HashMap<Integer, ArrayList<Integer>> map = new HashMap<>();
-		for(int i=0;i<width;i++) {
-			for(int j=0;j<height;j++) {
+		for(int j=0;j<height;j++) {
+			for(int i=0;i<width;i++) {
+			
 				if(label[i][j]!=0) {
 					int root = union_find(label[i][j], list);
 					int value;

@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -56,10 +57,12 @@ class LeftGroupPanel {
 	JLabel dirLabel = new JLabel(" Direction, region, landmarks");
 	JLabel cellBoundary = new JLabel("Cell boundary");
 	JLabel landmark = new JLabel("Landmark (soma)");
-	JToggleButton addLeft11 = new JToggleButton("Add");
-	JToggleButton addLeft12 = new JToggleButton("Add");
-	JToggleButton removeLeft11 = new JToggleButton("Remove");
-	JToggleButton removeLeft12 = new JToggleButton("Remove");
+	JToggleButton addLeft11 = new JToggleButton("+");
+	JToggleButton addLeft12 = new JToggleButton("+");
+	JToggleButton removeLeft11 = new JToggleButton("-");
+	JToggleButton removeLeft12 = new JToggleButton("-");
+	JToggleButton name11 = new JToggleButton("Name");
+	JToggleButton name12 = new JToggleButton("Name");
 	JToggleButton drawAnterior = new JToggleButton("Draw anterior");
 	JButton save11 = new JButton("Save");
 	JButton save12 = new JButton("Save");
@@ -228,6 +231,8 @@ class LeftGroupPanel {
 	BuilderDrawListener builderDrawListener = null;
 	RemoveListener removeListener = null;
 	RemoveListener removeListener2 = null;
+	NameListenerRegion nameListenerRegion = null;
+	NameListenerLandMark nameListenerLandMark = null;
 	BuilderRemoveListener builderRemoveListener = null;
 	
 	public LeftGroupPanel(ImageDealer imageDealer) {
@@ -259,6 +264,16 @@ class LeftGroupPanel {
 		jTF71.setSelected(imageDealer.opts.ignoreTau==1);
 		
 		
+		addLeft11.setMargin(new Insets(0,0,0,0));
+		addLeft12.setMargin(new Insets(0,0,0,0));
+		removeLeft11.setMargin(new Insets(0,0,0,0));
+		removeLeft12.setMargin(new Insets(0,0,0,0));
+		name11.setMargin(new Insets(0,0,0,0));
+		name12.setMargin(new Insets(0,0,0,0));
+		save11.setMargin(new Insets(0,0,0,0));
+		save12.setMargin(new Insets(0,0,0,0));
+		load11.setMargin(new Insets(0,0,0,0));
+		load12.setMargin(new Insets(0,0,0,0));
 		
 		// left1
 		dirLabel.setOpaque(true);
@@ -268,35 +283,38 @@ class LeftGroupPanel {
 		updateFeatures.setEnabled(false);
 		cellBoundary.setPreferredSize(new Dimension(120,20));
 		landmark.setPreferredSize(new Dimension(120,20));
-		addLeft11.setPreferredSize(new Dimension(55,20));
-		addLeft12.setPreferredSize(new Dimension(55,20));
+		addLeft11.setPreferredSize(new Dimension(30,20));
+		addLeft12.setPreferredSize(new Dimension(30,20));
 		save11.setPreferredSize(new Dimension(60,20));
 		save12.setPreferredSize(new Dimension(60,20));
 		load11.setPreferredSize(new Dimension(60,20));
 		load12.setPreferredSize(new Dimension(60,20));
-		removeLeft11.setPreferredSize(new Dimension(70,20));
-		removeLeft12.setPreferredSize(new Dimension(70,20));
-		
+		removeLeft11.setPreferredSize(new Dimension(30,20));
+		removeLeft12.setPreferredSize(new Dimension(30,20));
+		name11.setPreferredSize(new Dimension(65,20));
+		name12.setPreferredSize(new Dimension(65,20));
 		drawAnterior.setPreferredSize(new Dimension(125,20));
 		maskBuilder.setPreferredSize(new Dimension(125,20));
 		updateFeatures.setPreferredSize(new Dimension(125,20));
 		
-		int fontsize = 10;
-		drawAnterior.setFont(new Font("Courier", Font.BOLD, 12));
-		maskBuilder.setFont(new Font("Courier", Font.BOLD, 12));
-		updateFeatures.setFont(new Font("Courier", Font.BOLD, 10));
-		
-		
-		cellBoundary.setFont(new Font("Courier", Font.BOLD, 14));
-		landmark.setFont(new Font("Courier", Font.BOLD, 14));
-		addLeft11.setFont(new Font("Courier", Font.BOLD, 10));
-		addLeft12.setFont(new Font("Courier", Font.BOLD, 10));
-		save11.setFont(new Font("Courier", Font.BOLD, 10));
-		save12.setFont(new Font("Courier", Font.BOLD, 10));
-		load11.setFont(new Font("Courier", Font.BOLD, 10));
-		load12.setFont(new Font("Courier", Font.BOLD, 10));
-		removeLeft11.setFont(new Font("Courier", Font.BOLD, 9));
-		removeLeft12.setFont(new Font("Courier", Font.BOLD, 9));
+//		int fontsize = 10;
+//		drawAnterior.setFont(new Font("Courier", Font.BOLD, 12));
+//		maskBuilder.setFont(new Font("Courier", Font.BOLD, 12));
+//		updateFeatures.setFont(new Font("Courier", Font.BOLD, 10));
+//		
+//		
+//		cellBoundary.setFont(new Font("Courier", Font.BOLD, 12));
+//		landmark.setFont(new Font("Courier", Font.BOLD, 12));
+//		addLeft11.setFont(new Font("Courier", Font.BOLD, 12));
+//		addLeft12.setFont(new Font("Courier", Font.BOLD, 12));
+//		save11.setFont(new Font("Courier", Font.BOLD, 12));
+//		save12.setFont(new Font("Courier", Font.BOLD, 12));
+//		load11.setFont(new Font("Courier", Font.BOLD, 12));
+//		load12.setFont(new Font("Courier", Font.BOLD, 12));
+//		name11.setFont(new Font("Courier", Font.BOLD, 12));
+//		name12.setFont(new Font("Courier", Font.BOLD, 12));
+//		removeLeft11.setFont(new Font("Courier", Font.BOLD, 12));
+//		removeLeft12.setFont(new Font("Courier", Font.BOLD, 12));
 		// left2
 		detLabel.setOpaque(true);
 		detLabel.setBackground(UI_Beauty.blue);
@@ -397,12 +415,15 @@ class LeftGroupPanel {
     	jTP.setEnabledAt(5, false);
     	jTP.setEnabledAt(6, false);
     	
-    	backButton.setFont(new Font("Courier", Font.BOLD, 12));
-    	runButton.setFont(new Font("Courier", Font.BOLD, 12));
-    	nextButton.setFont(new Font("Courier", Font.BOLD, 12));
-    	saveopts.setFont(new Font("Courier", Font.BOLD, 12));
-    	loadopts.setFont(new Font("Courier", Font.BOLD, 12));
-    	runAllButton.setFont(new Font("Courier", Font.BOLD, 12));
+    	
+    	
+    	
+//    	backButton.setFont(new Font("Courier", Font.BOLD, 12));
+//    	runButton.setFont(new Font("Courier", Font.BOLD, 12));
+//    	nextButton.setFont(new Font("Courier", Font.BOLD, 12));
+//    	saveopts.setFont(new Font("Courier", Font.BOLD, 12));
+//    	loadopts.setFont(new Font("Courier", Font.BOLD, 12));
+//    	runAllButton.setFont(new Font("Courier", Font.BOLD, 12));
 
     	// left 3
     	proofReading.setOpaque(true);
@@ -414,6 +435,12 @@ class LeftGroupPanel {
     	addAllFiltered.setPreferredSize(new Dimension(190,25));
     	featuresPlot.setPreferredSize(new Dimension(190,25));
     	
+//    	viewFavourite.setMargin(new Insets(0,0,0,0));
+//    	deleteRestore.setMargin(new Insets(0,0,0,0));
+//    	deleteRestore.setMargin(new Insets(0,0,0,0));
+//    	addAllFiltered.setMargin(new Insets(0,0,0,0));
+//    	featuresPlot.setMargin(new Insets(0,0,0,0));
+
     	viewFavourite.setFont(new Font("Courier", Font.BOLD, 12));
     	deleteRestore.setFont(new Font("Courier", Font.BOLD, 12));
     	addAllFiltered.setFont(new Font("Courier", Font.BOLD, 12));
@@ -432,8 +459,12 @@ class LeftGroupPanel {
     	events.setPreferredSize(new Dimension(380,30));
     	movie.setPreferredSize(new Dimension(380,30));
     	
-    	events.setFont(new Font("Courier", Font.BOLD, 14));
-    	movie.setFont(new Font("Courier", Font.BOLD, 14));
+//    	events.setFont(new Font("Courier", Font.BOLD, 14));
+//    	movie.setFont(new Font("Courier", Font.BOLD, 14));
+    	
+//    	exportButton.setMargin(new Insets(0,0,0,0));
+//    	restart.setMargin(new Insets(0,0,0,0));
+//    	
     	exportButton.setFont(new Font("Courier", Font.BOLD, 12));
     	restart.setFont(new Font("Courier", Font.BOLD, 12));
     	
@@ -664,12 +695,14 @@ class LeftGroupPanel {
 		left11.add(cellBoundary);
 		left11.add(addLeft11);
 		left11.add(removeLeft11);
+		left11.add(name11);
 		left11.add(save11);
 		left11.add(load11);
 		
 		left12.add(landmark);
 		left12.add(addLeft12);
 		left12.add(removeLeft12);
+		left12.add(name12);
 		left12.add(save12);
 		left12.add(load12);
 		left13.add(drawAnterior);
@@ -868,6 +901,10 @@ class LeftGroupPanel {
 				// TODO Auto-generated method stub
 				if(addLeft11.isSelected()) {
 					removeLeft11.setSelected(false);
+					name11.setSelected(false);
+					addLeft12.setSelected(false);
+					removeLeft12.setSelected(false);
+					name12.setSelected(false);
 					drawlistener.setValid(true);
 					imageLabel.setValid1(true);
 					imageDealer.center.pauseButton.doClick();
@@ -897,7 +934,11 @@ class LeftGroupPanel {
 			public void itemStateChanged(ItemEvent arg0) {
 				// TODO Auto-generated method stub
 				if(addLeft12.isSelected()) {
+					addLeft11.setSelected(false);
+					removeLeft11.setSelected(false);
+					name11.setSelected(false);
 					removeLeft12.setSelected(false);
+					name12.setSelected(false);
 					drawlistener2.setValid(true);
 					imageLabel.setValid2(true);
 					imageDealer.center.pauseButton.doClick();
@@ -908,6 +949,7 @@ class LeftGroupPanel {
 					imageLabel.setValid2(false);
 					drawlistener2.clearPoints();
 					imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					dealBuilderLandMark();
 					imageLabel.repaint();
 //					changeRegionStatus(imageDealer.landMark,list2);
 				}
@@ -923,6 +965,10 @@ class LeftGroupPanel {
 				// TODO Auto-generated method stub
 				if(removeLeft11.isSelected()) {
 					addLeft11.setSelected(false);
+					name11.setSelected(false);
+					addLeft12.setSelected(false);
+					removeLeft12.setSelected(false);
+					name12.setSelected(false);
 					removeListener.setValid(true);
 					imageDealer.center.pauseButton.doClick();
 					imageDealer.center.panButton.setSelected(false);
@@ -945,7 +991,11 @@ class LeftGroupPanel {
 			public void itemStateChanged(ItemEvent arg0) {
 				// TODO Auto-generated method stub
 				if(removeLeft12.isSelected()) {
+					addLeft11.setSelected(false);
+					removeLeft11.setSelected(false);
+					name11.setSelected(false);
 					addLeft12.setSelected(false);
+					name12.setSelected(false);
 					removeListener2.setValid(true);
 					imageDealer.center.pauseButton.doClick();
 					imageDealer.center.panButton.setSelected(false);
@@ -960,6 +1010,57 @@ class LeftGroupPanel {
 			
 		});		
 		
+		nameListenerRegion = new NameListenerRegion(imageLabel, imageDealer, imageDealer.regionMarkLabel);
+		imageLabel.addMouseListener(nameListenerRegion);
+		name11.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				// TODO Auto-generated method stub
+				if(name11.isSelected()) {
+					addLeft11.setSelected(false);
+					removeLeft11.setSelected(false);
+					addLeft12.setSelected(false);
+					removeLeft12.setSelected(false);
+					name12.setSelected(false);
+					nameListenerRegion.setValid(true);
+					imageDealer.center.pauseButton.doClick();
+					imageDealer.center.panButton.setSelected(false);
+					imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+				}else {
+					nameListenerRegion.setValid(false);
+					imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					imageLabel.repaint();
+//					changeRegionStatus(imageDealer.landMark,list2);
+				}
+			}
+			
+		});		
+		
+		nameListenerLandMark = new NameListenerLandMark(imageLabel, imageDealer, imageDealer.landMarkLabel);
+		imageLabel.addMouseListener(nameListenerLandMark);
+		name12.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				// TODO Auto-generated method stub
+				if(name12.isSelected()) {
+					addLeft11.setSelected(false);
+					removeLeft11.setSelected(false);
+					name11.setSelected(false);
+					addLeft12.setSelected(false);
+					removeLeft12.setSelected(false);
+					nameListenerLandMark.setValid(true);
+					imageDealer.center.pauseButton.doClick();
+					imageDealer.center.panButton.setSelected(false);
+					imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+				}else {
+					nameListenerLandMark.setValid(false);
+					imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					imageLabel.repaint();
+//					changeRegionStatus(imageDealer.landMark,list2);
+				}
+			}
+			
+		});		
 		
 		
 		jTP.addChangeListener(new ChangeListener() {
@@ -1720,7 +1821,7 @@ class LeftGroupPanel {
 					float min = (float) table.getValueAt(2, 3);
 					float max = (float) table.getValueAt(2, 4);
 					for(int i=1;i<=nEvt;i++) {
-						float value = imageDealer.fts.curve.width55.get(i);
+						float value = imageDealer.fts.curve.duration.get(i);
 						if(value<min || value > max) {
 							imageDealer.deleteColorSet2.add(i);
 						}
@@ -1879,7 +1980,7 @@ class LeftGroupPanel {
 					int rowNumber = imageDealer.right.table.getRowCount();
 					int frame = imageDealer.fts.curve.tBegin.get(i);
 					float size = imageDealer.fts.basic.area.get(i);
-					float duration = imageDealer.fts.curve.width55.get(i);
+					float duration = imageDealer.fts.curve.duration.get(i);
 					float dffMax = imageDealer.fts.curve.dffMax.get(i);
 					float tau = imageDealer.fts.curve.decayTau.get(i); 
 					imageDealer.right.model.addRow(new Object[] {new Integer(rowNumber+1),new Boolean(false),new Integer(i),new Integer(frame+1),new Float(size),new Float(duration),new Float(dffMax),new Float(tau)});
@@ -2008,8 +2109,7 @@ class LeftGroupPanel {
 		for(int i=0;i<builderMap.size();i++) {
 			BuilderTableItem item = builderMap.get(i);
 			if(!item.type.equals("region")) 
-				continue;
-			
+				continue;	
 			boolean[][] curRegion = item.region;
 					//getRegion(item.image,minSize.get(i),maxSize.get(i),intensityThreshold.get(i));
 			if(status==0) {
@@ -2027,8 +2127,6 @@ class LeftGroupPanel {
 				}
 			}
 		}
-		
-		
 		
 		int[][] regionLabel = imageDealer.regionMarkLabel;
 		for(int x=0;x<width;x++) {
@@ -2054,58 +2152,68 @@ class LeftGroupPanel {
 		
 		boolean[][] regionMark = getRegionMarker();
 		
-		if(regionMark==null) {
+		if(regionMark!=null) {
+			HashMap<Integer, ArrayList<Integer>> marker = ConnectedComponents.twoPassConnect2D_ForBuilder(regionMark);
+			int opertaion = roleJCB.getSelectedIndex();
 			
-			return;
-		}
-		HashMap<Integer, ArrayList<Integer>> marker = ConnectedComponents.twoPassConnect2D_ForBuilder(regionMark);
-		int opertaion = roleJCB.getSelectedIndex();
-		
-		int cnt = regionCC.size();
-		for(int i=1;i<=regionCC.size();i++) {
-			ArrayList<Integer> curRegion = regionCC.get(i);
-			ArrayList<Integer> interLabel = new ArrayList<>();
-			for(int j=1;j<=marker.size();j++) {
-				ArrayList<Integer> interSection = new ArrayList<>(marker.get(j));
-				interSection.retainAll(curRegion);
-				if(interSection.size()>0)
-					interLabel.add(j);
-			}
-			
-			if(opertaion==1 && interLabel.size()>0) {
-				for(int xy:curRegion) {
-					int x = xy/changeParameter;
-					int y = xy%changeParameter;
-					regionLabel[x][y] = 0;
-					region[x][y] = false;
+			int cnt = regionCC.size();
+			for(int i=1;i<=regionCC.size();i++) {
+				ArrayList<Integer> curRegion = regionCC.get(i);
+				ArrayList<Integer> interLabel = new ArrayList<>();
+				for(int j=1;j<=marker.size();j++) {
+					ArrayList<Integer> interSection = new ArrayList<>(marker.get(j));
+					interSection.retainAll(curRegion);
+					if(interSection.size()>0)
+						interLabel.add(j);
 				}
-			}
-			
-			if(opertaion==0 && interLabel.size()>1) {
-				for(int xy:curRegion) {
-					int x = xy/changeParameter;
-					int y = xy%changeParameter;
-					float distance = Float.MAX_VALUE;
-					int curLabel = 0;
-					for(int j=0;j<interLabel.size();j++) {
-						int label = interLabel.get(j);
-						for(int xy2:marker.get(label)) {
-							int x2 = xy2/changeParameter;
-							int y2 = xy2%changeParameter;
-							if((x-x2)*(x-x2) + (y-y2)*(y-y2)<distance) {
-								distance = (x-x2)*(x-x2) + (y-y2)*(y-y2);
-								curLabel = cnt + j;
+				
+				if(opertaion==1 && interLabel.size()>0) {
+					for(int xy:curRegion) {
+						int x = xy/changeParameter;
+						int y = xy%changeParameter;
+						regionLabel[x][y] = 0;
+						region[x][y] = false;
+					}
+				}
+				
+				if(opertaion==0 && interLabel.size()>1) {
+					for(int xy:curRegion) {
+						int x = xy/changeParameter;
+						int y = xy%changeParameter;
+						float distance = Float.MAX_VALUE;
+						int curLabel = 0;
+						for(int j=0;j<interLabel.size();j++) {
+							int label = interLabel.get(j);
+							for(int xy2:marker.get(label)) {
+								int x2 = xy2/changeParameter;
+								int y2 = xy2%changeParameter;
+								if((x-x2)*(x-x2) + (y-y2)*(y-y2)<distance) {
+									distance = (x-x2)*(x-x2) + (y-y2)*(y-y2);
+									curLabel = cnt + j;
+								}
 							}
 						}
+						
+						if(curLabel!=cnt)
+							regionLabel[x][y] = curLabel;
 					}
-					
-					if(curLabel!=cnt)
-						regionLabel[x][y] = curLabel;
+					cnt += interLabel.size()-1;
 				}
-				cnt += interLabel.size()-1;
 			}
-			
 		}
+		
+		
+		HashMap<Integer,String> nameLst = new HashMap<>();
+		for(int x=0;x<width;x++) {
+			for(int y=0;y<height;y++) {
+				int label = regionLabel[x][y];
+				if(label>0 && !nameLst.containsKey(label)) {
+					nameLst.put(label, label+"");
+				}
+			}
+		}
+		imageDealer.nameLst = nameLst;
+		
 	}
 	
 	private boolean[][] getRegionMarker() {
@@ -2146,6 +2254,29 @@ class LeftGroupPanel {
 				}
 			}
 		}
+		
+		int[][] landMarkLabel = imageDealer.landMarkLabel;
+		for(int x=0;x<width;x++) {
+			for(int y=0;y<height;y++) {
+				landMarkLabel[x][y] = 0;
+			}
+		}
+		HashMap<Integer, ArrayList<Integer>> regionCC = ConnectedComponents.twoPassConnect2D_ForBuilder(landMark,4);
+		HashMap<Integer,String> nameLst = new HashMap<>();
+		int changeParameter = Math.max(width, height);
+		for(Entry<Integer, ArrayList<Integer>> entry:regionCC.entrySet()) {
+			int label = entry.getKey();
+			ArrayList<Integer> points = entry.getValue();
+			for(int xy:points) {
+				int x = xy/changeParameter;
+				int y = xy%changeParameter;
+				landMarkLabel[x][y] = label;
+			}
+			nameLst.put(label, label+"");
+		}
+		imageDealer.nameLstLandMark = nameLst;
+		
+		
 	}
 	
 	public boolean[][] getRegion(float[][] curImage, int minSize, int maxSize, float threshold) {

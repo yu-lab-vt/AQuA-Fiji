@@ -402,7 +402,7 @@ public class ProgressBarRealizedStep7 extends SwingWorker<Step7Result, Integer> 
 			}
 		}
 		
-		boolean[][] landMark = imageDealer.landMark;
+		int[][] landMark = imageDealer.landMarkLabel;
 		HashMap<Integer, ArrayList<int[]>> lmkLst = ConnectedComponents.twoPassConnect2D(landMark);
 		System.out.println(lmkLst.size());
 		// LandMark Features
@@ -2057,6 +2057,7 @@ public class ProgressBarRealizedStep7 extends SwingWorker<Step7Result, Integer> 
 			ftsLst.curve.dffMaxPval.put(i, dffMaxPval);
 			ftsLst.curve.tBegin.put(i, its);
 			ftsLst.curve.tEnd.put(i, ite);
+			ftsLst.curve.duration.put(i,(ite-its+1)*secondPerFrame);
 			ftsLst.curve.rise19.put(i, curveResult.rise19);
 			ftsLst.curve.fall91.put(i, curveResult.fall91);
 			ftsLst.curve.width55.put(i, curveResult.width55);

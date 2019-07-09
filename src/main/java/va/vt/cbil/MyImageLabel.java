@@ -26,6 +26,7 @@ public class MyImageLabel extends JLabel {
 	ArrayList<ArrayList<Point>> list1 = null;
 	ArrayList<ArrayList<Point>> list2 = null;
 	private Color color1 = new Color(0,191,255);
+	private Color color1S = new Color(0,230,230);
 	private Color color2 = new Color(255,185,15);
 	
 	private int width = 1;
@@ -310,6 +311,8 @@ public class MyImageLabel extends JLabel {
 	}
 
 	private void drawRegionMark(Graphics2D g, int[][] regionMarkLabel) {
+		HashMap<Integer,String> nameLst = imageDealer.nameLst;
+		
 		int width = regionMarkLabel.length;
 		int height = regionMarkLabel[0].length;
 		HashMap<Integer, ArrayList<int[]>> connectedMap = new HashMap<>();
@@ -329,6 +332,7 @@ public class MyImageLabel extends JLabel {
 		
 		int cnt = 0;
 		Color curColor = g.getColor();
+		g.setColor(color1S);
 		HashMap<Integer, ArrayList<int[]>> borderMap = new HashMap<>();
 		for(Entry<Integer, ArrayList<int[]>> entry:connectedMap.entrySet()) {
 			ArrayList<int[]> points = entry.getValue();
@@ -351,7 +355,7 @@ public class MyImageLabel extends JLabel {
 			int centerY = sumY/points.size();
 //			System.out.println(centerX + " " + centerY);
 			
-			g.drawString(""+label, centerX-5, centerY-5);
+			g.drawString(nameLst.get(label), centerX-5, centerY-5);
 			
 			boolean[][] smallMap = new boolean[maxX-minX+1][maxY-minY+1];
 			for(int[] p:points) {
@@ -400,8 +404,25 @@ public class MyImageLabel extends JLabel {
 	}
 
 	private void drawLandMark(Graphics2D g, boolean[][] region, int[][] regionLabel) {
-		HashMap<Integer, ArrayList<int[]>> connectedMap = ConnectedComponents.twoPassConnect2D(region);
-		int cnt = 0;
+		HashMap<Integer, ArrayList<int[]>> connectedMap = new HashMap<>();
+		HashMap<Integer,String> nameLst = imageDealer.nameLstLandMark;
+		int W = region.length;
+		int H = region[0].length;
+		for(int x=0;x<W;x++) {
+			for(int y=0;y<H;y++) {
+				int label = regionLabel[x][y];
+				if(label>0) {
+					ArrayList<int[]> pix = connectedMap.get(label);
+					if(pix==null) {
+						pix = new ArrayList<>();
+					}
+					pix.add(new int[] {x,y});
+					connectedMap.put(label, pix);
+				}
+			}
+		}
+		
+		
 		Color curColor = g.getColor();
 		HashMap<Integer, ArrayList<int[]>> borderMap = new HashMap<>();
 		for(Entry<Integer, ArrayList<int[]>> entry:connectedMap.entrySet()) {
@@ -424,7 +445,7 @@ public class MyImageLabel extends JLabel {
 			}
 			int centerX = sumX/points.size();
 			int centerY = sumY/points.size();
-			g.drawString(""+label, centerX-5, centerY-5);
+			g.drawString(nameLst.get(label), centerX-5, centerY-5);
 			
 			boolean[][] smallMap = new boolean[maxX-minX+1][maxY-minY+1];
 			for(int[] p:points) {
@@ -443,8 +464,7 @@ public class MyImageLabel extends JLabel {
 			for(int[] p:boundary) {
 				border.add(new int[] {p[0]+minX, p[1]+minY});
 			}
-			cnt++;
-			borderMap.put(cnt, border);
+			borderMap.put(label, border);
 		}
 		
 		g.setColor(curColor);

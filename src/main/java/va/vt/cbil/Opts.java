@@ -54,6 +54,9 @@ public class Opts implements Serializable{
 	int H = 500;
 	int T = 1614;
 	int maxValueDat = 65535;
+	
+	String filename = null;
+	
 	@Override
 	public String toString() {
 		return null;
