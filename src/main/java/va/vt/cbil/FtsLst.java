@@ -175,6 +175,7 @@ class Propagation implements Serializable{
 	HashMap<Integer,float[][]> areaChange = null;
 	HashMap<Integer,float[]> areaChangeRate = null;
 	HashMap<Integer,float[][]> areaFrame = null;
+	HashMap<Integer,float[][]> propMaxSpeed = null;
 	
 	public Propagation() {
 		propGrow = new HashMap<>();
@@ -184,6 +185,7 @@ class Propagation implements Serializable{
 		areaChange = new HashMap<>();
 		areaChangeRate = new HashMap<>();
 		areaFrame = new HashMap<>();
+		propMaxSpeed = new HashMap<>();
 	}
 }
 

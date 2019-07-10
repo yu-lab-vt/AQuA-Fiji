@@ -174,6 +174,8 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		imageDealer.center.nEvt.setText("nEvt");
 		imageDealer.center.EvtNumber.setText(nEvt+"");
 		
 		return labels;

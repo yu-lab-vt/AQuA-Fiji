@@ -305,6 +305,9 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 			e.printStackTrace();
 		}
 		
+		imageDealer.center.nEvt.setText("nSv");
+		imageDealer.center.EvtNumber.setText(lblxMap.size()+"");
+		
 		return lblMapEx;
 	}
 	

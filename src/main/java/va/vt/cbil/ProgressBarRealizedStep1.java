@@ -495,6 +495,9 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 		imageDealer.dat = dat;
 		imageDealer.dF = dF;
 		
+		imageDealer.center.nEvt.setText("nSeed");
+		imageDealer.center.EvtNumber.setText(seeds.size()+"");
+		
 		return label;
 		
 	}

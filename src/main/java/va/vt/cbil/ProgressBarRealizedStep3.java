@@ -342,6 +342,7 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		end = System.currentTimeMillis();
 		System.out.println("Total time" + (end-start0) + "ms");
 		
+		imageDealer.center.nEvt.setText("nEvt");
 		imageDealer.center.EvtNumber.setText(nEvt+"");
 		
 		return evtMap;

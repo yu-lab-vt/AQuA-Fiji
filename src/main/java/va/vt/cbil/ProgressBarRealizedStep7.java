@@ -1726,6 +1726,54 @@ public class ProgressBarRealizedStep7 extends SwingWorker<Step7Result, Integer> 
 			pixNumChangeRate[t] = max;
 		}
 		
+		// max propagation speed
+		HashMap<Integer, ArrayList<int[]>> boundaries = new HashMap<>();
+		float[][] propMaxSpeed = new float[T][nThr];
+		for(int t=Math.max(t0-1, 0);t<=t1;t++) {
+			
+			for(int k=0;k<nThr;k++) {
+				boolean[][] pixCur = new boolean[W][H];
+				for(int x=0;x<W;x++) {
+					for(int y=0;y<H;y++) {
+						pixCur[x][y] = volr0[x][y][t]>=thr0[k];
+					}
+				}
+				
+				ArrayList<int[]> curBound = BasicFeatureDealer.findMulBoundary2(pixCur);
+				if(t!=Math.max(t0-1, 0)) {
+					ArrayList<int[]> preBound = boundaries.get(k);
+					for(int i=0;i<curBound.size();i++) {
+						float dist = Float.MAX_VALUE;
+						for(int j=0;j<preBound.size();j++) {
+							int[] xy1 = curBound.get(i);
+							int[] xy2 = preBound.get(j);
+							float curdist = (float) Math.sqrt((xy1[0]-xy2[0])*(xy1[0]-xy2[0]) + (xy1[1]-xy2[1])*(xy1[1]-xy2[1]));
+							dist = Math.min(dist, curdist);
+						}
+						if(dist<Float.MAX_VALUE) {
+							propMaxSpeed[t][k] = Math.max(propMaxSpeed[t][k], dist*muPerPix);
+						}
+					}
+					
+					for(int i=0;i<preBound.size();i++) {
+						float dist = Float.MAX_VALUE;
+						for(int j=0;j<curBound.size();j++) {
+							int[] xy1 = preBound.get(i);
+							int[] xy2 = curBound.get(j);
+							float curdist = (float) Math.sqrt((xy1[0]-xy2[0])*(xy1[0]-xy2[0]) + (xy1[1]-xy2[1])*(xy1[1]-xy2[1]));
+							dist = Math.min(dist, curdist);
+						}
+						if(dist<Float.MAX_VALUE) {
+							propMaxSpeed[t][k] = Math.max(propMaxSpeed[t][k], dist*muPerPix);
+						}
+					}
+				}
+				
+				boundaries.put(k,curBound);
+			}
+		}
+		
+		
 		// output
 		for(int t=0;t<T;t++) {
 			for(int i=0;i<4;i++) {
@@ -1753,6 +1801,7 @@ public class ProgressBarRealizedStep7 extends SwingWorker<Step7Result, Integer> 
 		ftsPg.areaChange.put(nEvt, areaChange);
 		ftsPg.areaChangeRate.put(nEvt, pixNumChangeRate);
 		ftsPg.areaFrame.put(nEvt, areaFrame);
+		ftsPg.propMaxSpeed.put(nEvt, propMaxSpeed);
 	}
 
 	public FeatureTopResult getFeaturesTop(float[][][] datOrg, HashMap<Integer, ArrayList<int[]>> evtLst, int[][][] evtMap, Opts opts) {
@@ -1798,6 +1847,9 @@ public class ProgressBarRealizedStep7 extends SwingWorker<Step7Result, Integer> 
 		// foptions
 		
 		int nEvt = evtLst.size();
+		imageDealer.center.nEvt.setText("nEvt");
+		imageDealer.center.EvtNumber.setText(nEvt+"");
+		
 		float[][][] dMat = new float[nEvt][T][2];
 		float[][][] dffMat = new float[nEvt][T][2];
 		

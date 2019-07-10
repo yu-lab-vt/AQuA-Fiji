@@ -202,6 +202,7 @@ public class ProgressBarRealizedStep6 extends SwingWorker<int[][][], Integer> {
 			e.printStackTrace();
 		}
 		
+		imageDealer.center.nEvt.setText("nEvt");
 		imageDealer.center.EvtNumber.setText(nEvt+"");
 		
 		return labels;

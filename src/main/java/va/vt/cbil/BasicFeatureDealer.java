@@ -224,6 +224,28 @@ public class BasicFeatureDealer {
 		return new MulBoundary(cc, boundaries);
 	}
 	
+	public static ArrayList<int[]> findMulBoundary2(boolean[][] orgImage) {
+		int W = orgImage.length;
+		int H = orgImage[0].length;
+		
+		
+		
+		HashMap<Integer, ArrayList<int[]>> cc = ConnectedComponents.twoPassConnect2D(orgImage);
+		ArrayList<int[]> boundaries = new ArrayList<>();
+		for(Entry<Integer,ArrayList<int[]>> entry:cc.entrySet()) {
+			ArrayList<int[]> points = entry.getValue();
+			boolean[][] image = new boolean[W][H];
+			for(int[] p:points) {
+				image[p[0]][p[1]] = true;
+			}
+			
+			ArrayList<int[]> boundary = findBoundary(image);
+			boundaries.addAll(boundary);
+		}
+		
+		return boundaries;
+	}
+	
 
 	
 
