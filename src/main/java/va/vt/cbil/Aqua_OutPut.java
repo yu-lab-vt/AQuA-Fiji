@@ -98,6 +98,13 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		if(fts!=null)
 			nEvt = fts.basic.area.size();
 		
+		ArrayList<Integer> evtLst = new ArrayList<>();
+		for(int i=1;i<=nEvt;i++) {
+			if(imageDealer.deleteColorSet.contains(i)||imageDealer.deleteColorSet2.contains(i))
+				continue;
+			evtLst.add(i);
+		}
+		
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(new File(savePath + "\\Aqua_Output_Excel.csv"));
@@ -109,7 +116,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // Index
         sb.append("Index");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	sb.append(i);
         	sb.append(',');
         }
@@ -118,7 +125,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // Area
 		sb.append("Basic - Area");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+        for(int i:evtLst) {
         	sb.append(fts.basic.area.get(i));
         	sb.append(',');
         }
@@ -127,7 +134,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // Perimeter
 		sb.append("Basic - Perimeter");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	sb.append(fts.basic.perimeter.get(i));
         	sb.append(',');
         }
@@ -136,7 +143,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // Circularity
         sb.append("Basic - Circularity");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	sb.append(fts.basic.circMetric.get(i));
         	sb.append(',');
         }
@@ -145,7 +152,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // P Value
         sb.append("Curve - P Value on max Dff (-log10)");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	double dffMaxPval = fts.curve.dffMaxPval.get(i);
         	sb.append(-Math.log10(dffMaxPval));
         	sb.append(',');
@@ -155,7 +162,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // Max Dff
         sb.append("Curve - Max Dff");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	sb.append(fts.curve.dffMax.get(i));
         	sb.append(',');
         }
@@ -164,7 +171,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         //Curve - Duration 50% to 50%
         sb.append("Curve - Duration 50% to 50%");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	sb.append(fts.curve.width55.get(i));
         	sb.append(',');
         }
@@ -173,7 +180,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         //Curve - Duration 10% to 10%
         sb.append("Curve - Duration 10% to 10%");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	sb.append(fts.curve.width11.get(i));
         	sb.append(',');
         }
@@ -182,7 +189,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // rise19
         sb.append("Curve - Rising Duration 10% to 90%");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	sb.append(fts.curve.rise19.get(i));
         	sb.append(',');
         }
@@ -191,7 +198,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // fall91
         sb.append("Curve - Decaying Duration 90% to 10%");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	sb.append(fts.curve.fall91.get(i));
         	sb.append(',');
         }
@@ -200,7 +207,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // decayTau
         sb.append("Curve - Decay Tau");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	
         	if(!Float.isNaN(opts.ignoreTau)) {
         		Float decayTau = fts.curve.decayTau.get(i);
@@ -215,7 +222,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // onset overall
         sb.append("Propagation - Onset - Overall");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propGrowOverall.get(i);
 			float sum = 0;
 			for(int k=0;k<x0.length;k++)
@@ -229,7 +236,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // onset Anterior
         sb.append("Propagation - Onset - One Direction - Anterior");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propGrowOverall.get(i);
         	sb.append(x0[0]);
         	sb.append(',');
@@ -239,7 +246,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // onset Posterior
         sb.append("Propagation - Onset - One Direction - Posterior");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propGrowOverall.get(i);
         	sb.append(x0[1]);
         	sb.append(',');
@@ -249,7 +256,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // onset Left
         sb.append("Propagation - Onset - One Direction - Left");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propGrowOverall.get(i);
         	sb.append(x0[2]);
         	sb.append(',');
@@ -259,7 +266,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // onset Right
         sb.append("Propagation - Onset - One Direction - Right");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propGrowOverall.get(i);
         	sb.append(x0[3]);
         	sb.append(',');
@@ -269,7 +276,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // onset Ratio Anterior
         sb.append("Propagation - Onset - One Direction - Ratio - Anterior");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propGrowOverall.get(i);
         	if(sumOnset[i-1]!=0)
         		sb.append(x0[0]/sumOnset[i-1]);
@@ -280,7 +287,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // onset Ratio Posterior
         sb.append("Propagation - Onset - One Direction - Ratio - Posterior");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propGrowOverall.get(i);
         	if(sumOnset[i-1]!=0)
         		sb.append(x0[1]/sumOnset[i-1]);
@@ -291,7 +298,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // onset Ratio Left
         sb.append("Propagation - Onset - One Direction - Ratio - Left");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propGrowOverall.get(i);
         	if(sumOnset[i-1]!=0)
         		sb.append(x0[2]/sumOnset[i-1]);
@@ -302,7 +309,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // onset Ratio Right
         sb.append("Propagation - Onset - One Direction - Ratio - Right");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propGrowOverall.get(i);
         	if(sumOnset[i-1]!=0)
         		sb.append(x0[3]/sumOnset[i-1]);
@@ -315,7 +322,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // offset overall
         sb.append("Propagation - Offset - Overall");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propShrinkOverall.get(i);
 			float sum = 0;
 			for(int k=0;k<x0.length;k++)
@@ -329,7 +336,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // offset Anterior
         sb.append("Propagation - Offset - One Direction - Anterior");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propShrinkOverall.get(i);
         	sb.append(Math.abs(x0[0]));
         	sb.append(',');
@@ -339,7 +346,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // offset Posterior
         sb.append("Propagation - Offset - One Direction - Posterior");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propShrinkOverall.get(i);
         	sb.append(Math.abs(x0[1]));
         	sb.append(',');
@@ -349,7 +356,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // offset Left
         sb.append("Propagation - Offset - One Direction - Left");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propShrinkOverall.get(i);
         	sb.append(Math.abs(x0[2]));
         	sb.append(',');
@@ -359,7 +366,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // offset Right
         sb.append("Propagation - Offset - One Direction - Right");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propShrinkOverall.get(i);
         	sb.append(Math.abs(x0[3]));
         	sb.append(',');
@@ -369,7 +376,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // offset Ratio Anterior
         sb.append("Propagation - Offset - One Direction - Ratio - Anterior");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propShrinkOverall.get(i);
         	if(sumOffset[i-1]!=0)
         		sb.append(Math.abs(x0[0]/sumOffset[i-1]));
@@ -380,7 +387,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // offset Ratio Posterior
         sb.append("Propagation - Offset - One Direction - Ratio - Posterior");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propShrinkOverall.get(i);
         	if(sumOffset[i-1]!=0)
         		sb.append(Math.abs(x0[1]/sumOffset[i-1]));
@@ -391,7 +398,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // offset Ratio Left
         sb.append("Propagation - Offset - One Direction - Ratio - Left");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propShrinkOverall.get(i);
         	if(sumOffset[i-1]!=0)
         		sb.append(Math.abs(x0[2]/sumOffset[i-1]));
@@ -402,7 +409,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
         // offset Ratio Right
         sb.append("Propagation - Offset - One Direction - Ratio - Right");
     	sb.append(',');
-        for(int i = 1;i<nEvt;i++) {
+    	for(int i:evtLst) {
         	float[] x0 = fts.propagation.propShrinkOverall.get(i);
         	if(sumOffset[i-1]!=0)
         		sb.append(Math.abs(x0[3]/sumOffset[i-1]));
@@ -425,7 +432,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		for(int k=1;k<=nLmk;k++) {
 			sb.append("Landmark - Event Average Distance - Landmark " + k);
 			sb.append(',');
-			for(int i = 1;i<nEvt;i++) {
+			for(int i:evtLst) {
 				sb.append(fts.region.landmarkDist.distAvg[i-1][k-1]);
 				sb.append(',');
 			}
@@ -436,7 +443,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		for(int k=1;k<=nLmk;k++) {
 			sb.append("Landmark - Event Minimum Distance - Landmark " + k);
 			sb.append(',');
-			for(int i = 1;i<nEvt;i++) {
+			for(int i:evtLst) {
 				sb.append(fts.region.landmarkDist.distMin[i-1][k-1]);
 				sb.append(',');
 			}
@@ -447,7 +454,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		for(int k=1;k<=nLmk;k++) {
 			sb.append("Landmark - Event Toward Landmark - Landmark " + k);
 			sb.append(',');
-			for(int i = 1;i<nEvt;i++) {
+			for(int i:evtLst) {
 				sb.append(fts.region.landmarkDir.chgToward[i-1][k-1]);
 				sb.append(',');
 			}
@@ -458,7 +465,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		for(int k=1;k<=nLmk;k++) {
 			sb.append("Landmark - Event Away From Landmark - Landmark " + k);
 			sb.append(',');
-			for(int i = 1;i<nEvt;i++) {
+			for(int i:evtLst) {
 				sb.append(fts.region.landmarkDir.chgAway[i-1][k-1]);
 				sb.append(',');
 			}
@@ -469,7 +476,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		if(regionExist) {
 			sb.append("Region - Event Centroid Distance To Border");
 			sb.append(',');
-			for(int i = 1;i<nEvt;i++) {
+			for(int i:evtLst) {
 				float[] x0 = fts.region.cell.dist2border[i-1];
 				float minX0 = Float.MAX_VALUE;
 				for(int t=0;t<x0.length;t++) {
@@ -483,7 +490,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 			
 			sb.append("Region - Event Centroid Distance To Border - Normalized By Region Radius");
 			sb.append(',');
-			for(int i = 1;i<nEvt;i++) {
+			for(int i:evtLst) {
 				float[] x0 = fts.region.cell.dist2borderNorm[i-1];
 				float minX0 = Float.MAX_VALUE;
 				for(int t=0;t<x0.length;t++) {
@@ -499,7 +506,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		// network
 		sb.append("Network - Temporal Density");
 		sb.append(',');
-		for(int i = 1;i<nEvt;i++) {
+		for(int i:evtLst) {
 			sb.append(fts.network.nOccurSameLoc[i-1][0]);
 			sb.append(',');
 		}
@@ -508,7 +515,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		// network
 		sb.append("Network - Temporal Density With Similar Size Only");
 		sb.append(',');
-		for(int i = 1;i<nEvt;i++) {
+		for(int i:evtLst) {
 			sb.append(fts.network.nOccurSameLoc[i-1][1]);
 			sb.append(',');
 		}
@@ -517,7 +524,7 @@ public class Aqua_OutPut extends SwingWorker<Void, Integer>{
 		// network
 		sb.append("NetWork - Spatial Density");
 		sb.append(',');
-		for(int i = 1;i<nEvt;i++) {
+		for(int i:evtLst) {
 			sb.append(fts.network.nOccurSameTime[i-1]);
 			sb.append(',');
 		}
