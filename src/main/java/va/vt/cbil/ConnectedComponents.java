@@ -40,7 +40,7 @@ public class ConnectedComponents {
 							curLabel++;
 						}else {
 							label[i][j] = min;
-							for(int ii=1;ii<labelList.size();ii++) {
+							for(int ii=0;ii<labelList.size();ii++) {
 								union_connect(min,labelList.get(ii),list);
 							}
 						}
@@ -108,7 +108,7 @@ public class ConnectedComponents {
 							curLabel++;
 						}else {
 							label[i][j] = min;
-							for(int ii=1;ii<labelList.size();ii++) {
+							for(int ii=0;ii<labelList.size();ii++) {
 								union_connect(min,labelList.get(ii),list);
 							}
 						}
@@ -181,7 +181,7 @@ public class ConnectedComponents {
 							curLabel++;
 						}else {
 							label[i][j] = min;
-							for(int ii=1;ii<labelList.size();ii++) {
+							for(int ii=0;ii<labelList.size();ii++) {
 								union_connect(min,labelList.get(ii),list);
 							}
 						}
@@ -254,7 +254,7 @@ public class ConnectedComponents {
 						curLabel++;
 					}else {
 						label[i][j] = min;
-						for(int ii=1;ii<labelList.size();ii++) {
+						for(int ii=0;ii<labelList.size();ii++) {
 							union_connect(min,labelList.get(ii),list);
 						}
 					}
@@ -323,7 +323,7 @@ public class ConnectedComponents {
 						curLabel++;
 					}else {
 						label[i][j] = min;
-						for(int ii=1;ii<labelList.size();ii++) {
+						for(int ii=0;ii<labelList.size();ii++) {
 							union_connect(min,labelList.get(ii),list);
 						}
 					}
@@ -391,7 +391,7 @@ public class ConnectedComponents {
 						curLabel++;
 					}else {
 						label[i][j] = min;
-						for(int ii=1;ii<labelList.size();ii++) {
+						for(int ii=0;ii<labelList.size();ii++) {
 							union_connect(min,labelList.get(ii),list);
 						}
 					}
@@ -474,7 +474,7 @@ public class ConnectedComponents {
 							curLabel++;
 						}else {
 							label[i][j][k] = min;
-							for(int ii=1;ii<labelList.size();ii++) {
+							for(int ii=0;ii<labelList.size();ii++) {
 								union_connect(min,labelList.get(ii),list);
 							}
 						}
@@ -563,7 +563,7 @@ public class ConnectedComponents {
 							curLabel++;
 						}else {
 							label[i][j][k] = min;
-							for(int ii=1;ii<labelList.size();ii++) {
+							for(int ii=0;ii<labelList.size();ii++) {
 								union_connect(min,labelList.get(ii),list);
 							}
 						}
@@ -639,7 +639,7 @@ public class ConnectedComponents {
 						curLabel++;
 					}else {
 						label[i][j] = min;
-						for(int ii=1;ii<labelList.size();ii++) {
+						for(int ii=0;ii<labelList.size();ii++) {
 							union_connect(min,labelList.get(ii),list);
 						}
 					}
@@ -710,7 +710,7 @@ public class ConnectedComponents {
 						curLabel++;
 					}else {
 						label[i][j] = min;
-						for(int ii=1;ii<labelList.size();ii++) {
+						for(int ii=0;ii<labelList.size();ii++) {
 							union_connect(min,labelList.get(ii),list);
 						}
 					}

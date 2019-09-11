@@ -150,7 +150,7 @@ public class LabelAndConnect {
 							curLabel++;
 						}else {
 							label[i][j][k] = min;
-							for(int ii=1;ii<labelList.size();ii++) {
+							for(int ii=0;ii<labelList.size();ii++) {
 								union_connect(labelList.get(0),labelList.get(ii),list);
 							}
 						}
