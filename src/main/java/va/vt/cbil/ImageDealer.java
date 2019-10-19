@@ -1103,7 +1103,7 @@ class ImageDealer {
 		center.ts = ts;
 	}
 
-	public void setStep5(int ignoreMerge, int mergeEventDiscon, int mergeEventCorr, int mergeEventMaxTimeDif) {
+	public void setStep5(int ignoreMerge, int mergeEventDiscon, float mergeEventCorr, int mergeEventMaxTimeDif) {
 		opts.ignoreMerge = ignoreMerge;
 		opts.mergeEventDiscon = mergeEventDiscon;
 		opts.mergeEventCorr = mergeEventCorr;

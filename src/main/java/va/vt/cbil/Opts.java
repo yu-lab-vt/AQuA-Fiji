@@ -19,7 +19,7 @@ public class Opts implements Serializable{
 	int zThr = 2;
 	int ignoreMerge = 1;
 	int mergeEventDiscon = 0;
-	int mergeEventCorr = 0;
+	float mergeEventCorr = 0;
 	int mergeEventMaxTimeDif = 2;
 	
 	int regMaskGap = 5;

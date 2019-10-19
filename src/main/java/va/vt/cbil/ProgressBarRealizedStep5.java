@@ -197,7 +197,7 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 		int T = opts.T;
 		
 		int minDist = opts.mergeEventDiscon;
-		int minCorr = opts.mergeEventCorr;
+		float minCorr = opts.mergeEventCorr;
 		int maxTimeDif = opts.mergeEventMaxTimeDif;
 		
 		int[][][] mIn = new int[W][H][T];
@@ -231,7 +231,7 @@ public class ProgressBarRealizedStep5 extends SwingWorker<int[][][], Integer> {
 	 * @return
 	 */
 	private HashMap<Integer, ArrayList<int[]>> evtNeibCorr(int[][][] mIn, HashMap<Integer, float[]> dffMat, HashMap<Integer, Integer> tBegin,
-			int minCorr, int maxTimeDif,int N) {
+			float minCorr, int maxTimeDif,int N) {
 		// evtNeib detect neighboring events based on curve corrrelation
 		// mainly used for merging
 		
