@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +23,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
-
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
 
@@ -152,6 +152,8 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 	            }
 	        }
 		}
+	    // debug
+	    // Helper.viewMatrix(width, height, pages, "datOrg", datOrg);
 	    
 	    stdMap1 = new float[width][height];
 	    stdMap2 = new float[width][height];
@@ -340,6 +342,8 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 			FileOutputStream f = new FileOutputStream(new File(proPath + "DataOrg.ser"));
 			ObjectOutputStream o = new ObjectOutputStream(f);
 			o.writeObject(dataOrg);
+            o.close();
+            f.close();
 			o.close();
 			f.close();
 		} catch (FileNotFoundException e) {
@@ -356,22 +360,28 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 		inputImageAndGauss(imgPlus,dataOrg);
 		
 		double stdEstBef = calNoiseStd(noiseEstMask,stdMap1);
-		opts.varEst = (float) (stdEstBef*stdEstBef);
-		System.out.println(stdEstBef);
+//		opts.varEst = (float) (stdEstBef*stdEstBef);
 		double stdEst = calNoiseStd(noiseEstMask,stdMap2);
-		dataOrg = null;
-		
+//		test
+		opts.varEst = (float) (stdEst*stdEst);
+        // System.out.printf("stdEstBef = %f, opts.varEst = %f, stdEst = %f\n" , stdEstBef, opts.varEst, stdEst);
+		dataOrg = null;		
 		long e1 = System.currentTimeMillis();
 		System.out.println((e1-s1)+"ms");
 		
 		// Calculate dF: estimate the background and then subtract it
 		publish(3);
 			// get Bias
+		// float bias = 0;
 		float bias = MinMoveMean.getBias(opts.movAvgWin, opts.cut, stdEst);
-		System.out.println(bias);
+		// System.out.printf("use stdEst get bias = %f\n", bias);
 		
-			// subtract background
+		// subtract background
+		// debug
+        // Helper.viewMatrix(3, 3, 3, "dat", dat);
 		float[][][] dF = MinMoveMean.subMinMoveMean(dat, opts.movAvgWin, opts.cut, bias,(float)stdEst);
+        // debug
+        // Helper.viewMatrix(3, 3, 3, "dF", dF);
 		// delete the region whose area less than minSize
 		publish(4);
 			// thrArscl: scale of noise, how much the pixel is bigger than noise
@@ -381,7 +391,7 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 		publish(5);
 		HashMap<Integer, ArrayList<int[]>> labelMap = new HashMap<Integer, ArrayList<int[]>>();
 		int[][][] label = ConnectedComponents.twoPassConnect3D(dActVoxDi, labelMap);
-		System.out.println(labelMap.size());
+		// System.out.printf("size = %d\n", labelMap.size());
 		
 		// Fork-in
 		// Get the local maximal as the event seeds
@@ -392,22 +402,22 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 		ArrayList<int[]> location = new ArrayList<int[]>();
 //		ForkJoinPool pool = new ForkJoinPool();
 //		FindSeedsTask task = new FindSeedsTask(1,labelMap.size(),imgPlus,labelMap);
-
-			// 3D guassblur
+		// 3D guassblur
 		ImagePlus imgPlusBlur = new ImagePlus(imageDealer.path);
 		ImageProcessor imgProcessor2 = imgPlusBlur.getProcessor();
 		float[][][] x = new float[width][height][pages];
 		for(int k = 0;k<pages;k++) {
 			for(int i = 0;i<width;i++) {
 				for(int j=0;j<height;j++) {
-					x[i][j][k] = dat[i][j][k]*dat[i][j][k]*opts.maxValueDat;
+				  x[i][j][k] = dat[i][j][k];
+//				  x[i][j][k] = dat[i][j][k]*opts.maxValueDat;
+					// x[i][j][k] = dat[i][j][k]*dat[i][j][k]*opts.maxValueDat;
 				}
 			}
-		}
-		
-		float[][][] y = GaussFilter.gaussFilter(x, 1.0f, 1.0f, 0.5f);
-		
-		
+		}		
+		float[][][] y = GaussFilter.gaussFilter(x, 1.0f, 1.0f, 0.5f);	
+		// debug
+         //Helper.viewMatrix(3, 3, 3, "y", y);
 		for(int k = 1;k<=pages;k++) {
 			imgPlusBlur.setPosition(k);
 			for(int i = 0;i<width;i++) {
@@ -416,13 +426,12 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 				}
 			}
 		}
-
-		location = SeedSearch.searchSeed(imgPlusBlur, labelMap);
+//		location = SeedSearch.searchSeed(imgPlusBlur, labelMap);
+		location = SeedSearch2.searchSeed(y, labelMap);
+		// System.out.printf("nseed = %d\n", location.size());
 		for(int[] p:location)
+		  if(label[p[0]][p[1]][p[2]]>0)
 			seeds.put(p, dat[p[0]][p[1]][p[2]]);
-		System.out.println(seeds.size());
-		
-		
 		
 		publish(7);
 		// ------------------------ Save Data ----------------------------- //
