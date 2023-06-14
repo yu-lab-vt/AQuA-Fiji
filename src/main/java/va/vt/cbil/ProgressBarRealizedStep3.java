@@ -2323,6 +2323,8 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 	 */
 	private static float[] nanMedian(int[][] riseX) {
 		int nLm = riseX.length;
+		if(nLm==0)
+			return new float[nLm];
 		int levels = riseX[0].length;
 		
 		float[] result = new float[nLm];
