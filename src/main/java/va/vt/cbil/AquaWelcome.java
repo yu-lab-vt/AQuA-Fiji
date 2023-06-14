@@ -217,7 +217,7 @@ class AquaWelcome {
 						AquaRunning aqua = new AquaRunning();
 						float ts = Float.parseFloat(jTF1.getText());
 						float ss = Float.parseFloat(jTF2.getText());
-						int border = Integer.parseInt(jTF3.getText());
+						int border = (int)Float.parseFloat(jTF3.getText());
 						int index = typeJCB.getSelectedIndex()+1;
 	//					System.out.println(index);
 						aqua.start(path, proPath, load,ts,ss,border,index);
