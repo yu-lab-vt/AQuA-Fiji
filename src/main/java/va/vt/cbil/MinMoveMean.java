@@ -271,8 +271,8 @@ public class MinMoveMean {
 					for(int k=t0;k<t1;k++) {
 						result[i][j][k] = data[i][j][k] - min;
 						// TODO:recover
-						if(result[i][j][k]<0)
-							result[i][j][k] = (float)(rv.nextGaussian()*stdEst);
+						//if(result[i][j][k]<0)
+						//	result[i][j][k] = (float)(rv.nextGaussian()*stdEst);
 					}
 				}
 			}

@@ -1474,7 +1474,7 @@ class LeftGroupPanel {
 				imageDealer.setStep4(zThr);
 				int ignoreMerge = jTF51.isSelected()?1:0;
 				int mergeEventDiscon = Integer.parseInt(jTF52.getText());
-				int mergeEventCorr = Integer.parseInt(jTF53.getText());
+				float mergeEventCorr = Float.parseFloat(jTF53.getText());
 				int mergeEventMaxTimeDif = Integer.parseInt(jTF54.getText());
 				imageDealer.setStep5(ignoreMerge, mergeEventDiscon, mergeEventCorr,mergeEventMaxTimeDif);
 

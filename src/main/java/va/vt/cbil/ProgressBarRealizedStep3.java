@@ -368,12 +368,12 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		int pages = dat[0][0].length;
 		int changeParameter = Math.max(width, height);
 		float[] riseX0 = nanMedian(riseX);
-		int[][][] riseMap = new int[width][height][pages];
+		float[][][] riseMap = new float[width][height][pages];
 		
 		for(Map.Entry<Integer,ArrayList<int[]>> entry:lblxMap.entrySet()) {				// checked
 			ArrayList<int[]> points = entry.getValue();
 			int label = entry.getKey();
-			int t00 = Math.round(riseX0[label-1]);
+			float t00 = riseX0[label-1];
 			if(t00!=-1) {
 				for(int[] p:points) {
 					riseMap[p[0]][p[1]][p[2]] = t00;
@@ -1691,7 +1691,7 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 	 * @param dat
 	 * @return
 	 */
-	private static int[][][] sp2evtStp1(int[][][] lblMapSO, int[][][] riseMap, int maxRiseDly1, int maxRiseDly2, float minOverRate, float[][][] dat) {
+	private static int[][][] sp2evtStp1(int[][][] lblMapSO, float[][][] riseMap, int maxRiseDly1, int maxRiseDly2, float minOverRate, float[][][] dat) {
 		int width = lblMapSO.length;
 		int height = lblMapSO[0].length;
 		int pages = lblMapSO[0][0].length;
@@ -1714,10 +1714,10 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		for(Map.Entry<Integer,ArrayList<int[]>> entry:spVoxLst.entrySet()) {
 			ArrayList<int[]> points = entry.getValue();
 			int label = entry.getKey();
-			long sum = 0;
+			float sum = 0;
 			int cnt = 0;
 			for(int[] p:points) {
-				int t0 = riseMap[p[0]][p[1]][p[2]];
+				float t0 = riseMap[p[0]][p[1]][p[2]];
 				if(t0>0) {
 					sum += t0;
 					cnt++;
@@ -1768,7 +1768,7 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 						int py = Math.min(Math.max(p[1]+dh[i],0),height-1);
 						if(lblMapS[px][py][p[2]]>0 && lblMapS[px][py][p[2]]!=label) {
 
-							int riseDif = Math.abs(riseMap[p[0]][p[1]][p[2]] - riseMap[px][py][p[2]]);
+							float riseDif = Math.abs(riseMap[p[0]][p[1]][p[2]] - riseMap[px][py][p[2]]);
 							if(riseDif<=maxRiseDly0)
 								neib0.add(lblMapS[px][py][p[2]]);	// xGood, neib0 add xGood
 						}
@@ -2214,7 +2214,7 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 	 * @param minOverRate
 	 * @return
 	 */
-	private static SvNeibResult svNeib(int[][][] lblMapS, HashMap<Integer, ArrayList<int[]>> spVoxLst, int[][][] riseMap, int maxRiseDly, float minOverRate) {
+	private static SvNeibResult svNeib(int[][][] lblMapS, HashMap<Integer, ArrayList<int[]>> spVoxLst, float[][][] riseMap, int maxRiseDly, float minOverRate) {
 		int nSp = spVoxLst.size();							// checked
 		int width = lblMapS.length;
 		int height = lblMapS[0].length;
@@ -2259,7 +2259,7 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 					int py = Math.min(Math.max(p[1]+dh[i],0),height-1);
 					if(lblMapS[px][py][p[2]]>0 && lblMapS[px][py][p[2]]!=label) {
 
-						int riseDif = Math.abs(riseMap[p[0]][p[1]][p[2]] - riseMap[px][py][p[2]]);
+						float riseDif = Math.abs(riseMap[p[0]][p[1]][p[2]] - riseMap[px][py][p[2]]);
 						if(riseDif<maxRiseDly)
 							neib0.add(lblMapS[px][py][p[2]]);	// xGood, neib0 add xGood
 					}

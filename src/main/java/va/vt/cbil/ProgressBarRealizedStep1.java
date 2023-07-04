@@ -153,19 +153,17 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 	        }
 		}
 	    // debug
-	    // Helper.viewMatrix(width, height, pages, "datOrg", datOrg);
+	    //Helper.viewMatrix(10, 10, 10, "datOrg", datOrg);
+	    
+	    //Helper.viewMatrix(10, 10, 10, "dat", dat);
 	    
 	    stdMap1 = new float[width][height];
 	    stdMap2 = new float[width][height];
 	    for(int i=0;i<width;i++) {
 	    	for(int j=0;j<height;j++) {
-//	    		ArrayList<Float> df1 = new ArrayList<>();
-//	    		ArrayList<Float> df2 = new ArrayList<>();
 	    		float[] df1 = new float[pages-1];
 	    		float[] df2 = new float[pages-1];
 	    		for(int k=1;k<pages;k++) {
-//	    			df1.add((datOrg[i][j][k]-datOrg[i][j][k-1])*(datOrg[i][j][k]-datOrg[i][j][k-1]));
-//	    			df2.add((dat[i][j][k]-dat[i][j][k-1])*(dat[i][j][k]-dat[i][j][k-1]));
 	    			df1[k-1] = (datOrg[i][j][k]-datOrg[i][j][k-1])*(datOrg[i][j][k]-datOrg[i][j][k-1]);
 	    			df2[k-1] = (dat[i][j][k]-dat[i][j][k-1])*(dat[i][j][k]-dat[i][j][k-1]);
 	    			
@@ -175,6 +173,8 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 	    		
 	    	}
 	    }
+	    
+	    //Helper.viewMatrix(10, 10, "stdMap2", stdMap2);
 	    return dat;
 	}
 	
@@ -359,12 +359,17 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 		
 		inputImageAndGauss(imgPlus,dataOrg);
 		
+//		Helper.viewMatrix(10,10,3,"datOrg",dataOrg);
+		
+		
 		double stdEstBef = calNoiseStd(noiseEstMask,stdMap1);
 //		opts.varEst = (float) (stdEstBef*stdEstBef);
 		double stdEst = calNoiseStd(noiseEstMask,stdMap2);
+//		System.out.println(""+stdEst);
 //		test
+		
 		opts.varEst = (float) (stdEst*stdEst);
-        // System.out.printf("stdEstBef = %f, opts.varEst = %f, stdEst = %f\n" , stdEstBef, opts.varEst, stdEst);
+        System.out.printf("stdEstBef = %f, opts.varEst = %f, stdEst = %f\n" , stdEstBef, opts.varEst, stdEst);
 		dataOrg = null;		
 		long e1 = System.currentTimeMillis();
 		System.out.println((e1-s1)+"ms");
@@ -374,12 +379,23 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 			// get Bias
 		// float bias = 0;
 		float bias = MinMoveMean.getBias(opts.movAvgWin, opts.cut, stdEst);
-		// System.out.printf("use stdEst get bias = %f\n", bias);
 		
+		System.out.printf("Use MonteCarlo to calculate bias, which could result in randomness \n", bias);
+		System.out.printf("use stdEst get bias = %f\n", bias);
+		
+//		System.out.printf("------------------- set bias to 0, only for debug \n", bias);
+//		bias = 0;
+//		System.out.printf("------------------- set bias to 0, only for debug \n", bias);
+//		 Helper.viewMatrix(3, 3, 3, "dF", dF);
+		
+//		System.out.printf("use movAvgWin= %d\n", opts.movAvgWin);
+//		System.out.printf("use cut= %d\n", opts.cut);
 		// subtract background
 		// debug
-        // Helper.viewMatrix(3, 3, 3, "dat", dat);
+        
 		float[][][] dF = MinMoveMean.subMinMoveMean(dat, opts.movAvgWin, opts.cut, bias,(float)stdEst);
+		
+//		Helper.viewMatrix(10,10,3,"dF",dF);
         // debug
         // Helper.viewMatrix(3, 3, 3, "dF", dF);
 		// delete the region whose area less than minSize
@@ -410,8 +426,6 @@ public class ProgressBarRealizedStep1 extends SwingWorker<int[][][], Integer>{
 			for(int i = 0;i<width;i++) {
 				for(int j=0;j<height;j++) {
 				  x[i][j][k] = dat[i][j][k];
-//				  x[i][j][k] = dat[i][j][k]*opts.maxValueDat;
-					// x[i][j][k] = dat[i][j][k]*dat[i][j][k]*opts.maxValueDat;
 				}
 			}
 		}		

@@ -188,29 +188,36 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 		
 		// sort the seeds by their lightness
 		ArrayList<Map.Entry<int[],Float>> seedsList = sortSeeds(seeds);
+		opts.maxStp = 1;
+		
+		// extend
+		int ext = 2;
+		dat = extendData(dat,dF,seedsList,ext);
+		dF = extendDF(dF,ext);
+		
 		
 		publish(2);
 		// grow seeds
 		Res[] resCell = new Res[seedsList.size()];
-		int[][][] lblMap = new int[width][height][pages];
+		int[][][] lblMap = new int[width][height][pages + 2*ext];
 		opts.maxStp = 1;
-		boolean[][][] lmAll = new boolean[width][height][pages];
+		boolean[][][] lmAll = new boolean[width][height][pages + 2*ext];
 		for(Map.Entry<int[],Float> entry:seedsList) {
 			int[] p = entry.getKey();
 			lmAll[p[0]][p[1]][p[2]] = true;
 		}
 		HashMap<Integer, ArrayList<int[]>> map = new HashMap<>(); 
-		growSeed(dat,dF,resCell,lblMap,seedsList,lmAll,opts,0,map);	// checked
+		growSeed(dF,dF,resCell,lblMap,seedsList,lmAll,opts,0,map);	// checked
 		
 		// grow seeds
 		for(int i=1;i<=40;i++) {
 			System.out.println("Grow " + i);
-			lmAll = new boolean[width][height][pages];
+			lmAll = new boolean[width][height][pages + 2*ext];
 			for(Map.Entry<int[],Float> entry:seedsList) {
 				int[] p = entry.getKey();
 				lmAll[p[0]][p[1]][p[2]] = true;
 			}
-			growSeed(dat,dF,resCell,lblMap,seedsList,lmAll,opts,i,map);
+			growSeed(dF,dF,resCell,lblMap,seedsList,lmAll,opts,i,map);
 		}
 		opts.maxStp = 11;		
 		
@@ -235,6 +242,10 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 			e.printStackTrace();
 		}
 		
+		System.out.println("----------------------------------------------------------------- \n");
+		System.out.println("Fill holes not implemented since java does not have such function \n");
+		System.out.println("May result in differences from MATLAB version \n");
+		System.out.println("----------------------------------------------------------------- \n");
 		FilterAndFillResult fr = filterAndFillSp(lblMap,map);	// only delete		
 		lblMap = fr.lblMap;
 		map = fr.map;
@@ -250,10 +261,15 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 		for(int i=1;i<=map.size();i++) {
 			if(zVec[i-1]>opts.thrSvSig) {
 				ArrayList<int[]> points = map.get(i);
-				newMap.put(cnt, points);
+				ArrayList<int[]> l = new ArrayList<int[]>();
 				for(int[] p :points) {
-					newlblMap[p[0]][p[1]][p[2]] = cnt;
+					p[2] -= ext;
+					if (p[2]>=0 && p[2]<pages) {
+						newlblMap[p[0]][p[1]][p[2]] = cnt;
+						l.add(p);
+					}
 				}
+				newMap.put(cnt, l);
 				cnt++;
 			}
 		}
@@ -262,6 +278,11 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 		lblMap = newlblMap;
 		
 		showTime();
+		
+		// remove extension
+//		lblMap = cropData(lblMap,0,width-1,0,height-1,ext,pages-1+ext);
+		dat = cropData(dat,0,width-1,0,height-1,ext,pages-1+ext);
+//		map = label2idx(lblMap);
 		
 		publish(4);
 		// Extend and re-fit each patch, estimate delay, reconstruct signal
@@ -360,13 +381,84 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 		}
 		
 		int cnt = 1;
+		lblMap = new int[W][H][T];
+		map = new HashMap<Integer, ArrayList<int[]>>();
 		for(ArrayList<int[]> points:mapNew) {
 			map.put(cnt,points);
+			for (int[] p:points) {
+				lblMap[p[0]][p[1]][p[2]] = cnt;
+			}
 			cnt++;
 		}
 		
 		return map;
 	}
+	
+	private float[][][] extendData(float[][][] dat, float[][][] dF,ArrayList<Map.Entry<int[],Float>> seedsList,int ext) {
+		if (ext==0)
+			return dat;
+		int W = dat.length;
+		int H = dat[0].length;
+		int T = dat[0][0].length;
+		
+		
+		float[][] backGround = new float[W][H];
+		for (int i=0;i<W;i++) {
+			for (int j=0;j<H;j++) {
+				for (int t=0;t<T;t++) {
+					backGround[i][j] += (dat[i][j][t] - dF[i][j][t])/T;
+				}
+			}
+		}
+		
+		float[][][] dat2 = new float[W][H][T+2*ext];
+		float[][][] dF2 = new float[W][H][T+2*ext];
+		for (int i=0;i<W;i++) {
+			for (int j=0;j<H;j++) {
+				for (int t=0;t<ext;t++) {
+					dat2[i][j][t] = backGround[i][j];
+					dat2[i][j][T-t-1] = backGround[i][j];
+				}
+				
+				
+				for (int t=0;t<T;t++) {
+					dat2[i][j][t+ext] = dat[i][j][t];
+					dF2[i][j][t+ext] = dF[i][j][t];
+				}
+			}
+		}
+		
+		for(Map.Entry<int[],Float> entry:seedsList) {
+			int[] p = entry.getKey();
+			p[2] += ext;
+		}
+
+//		System.out.println("Extend data \n");
+		return dat2	;
+	}
+	private float[][][] extendDF(float[][][] dF,int ext) {
+		if (ext==0)
+			return dF;
+		int W = dF.length;
+		int H = dF[0].length;
+		int T = dF[0][0].length;
+		
+
+		float[][][] dF2 = new float[W][H][T+2*ext];
+		for (int i=0;i<W;i++) {
+			for (int j=0;j<H;j++) {
+				for (int t=0;t<T;t++) {
+					dF2[i][j][t+ext] = dF[i][j][t];
+				}
+			}
+		}
+		
+
+//		System.out.println("Extend data \n");
+		return dF2;
+	}
+	
+	
 
 	private HashMap<Integer,ArrayList<int[]>> label2idx(int[][][] labelMap){
 		HashMap<Integer, ArrayList<int[]>> map = new HashMap<>();
@@ -1097,6 +1189,7 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 				// update seed map
 				updateSeedMap(lmAll,rgW2s,rgW2e,rgH2s,rgH2e,timeWindow[2]+rgTs,timeWindow[3]+rgTs);
 				
+				
 				// initialize res
 				res = new Res(x1, timeWindow, iSeed, rgH1s, rgH1e, rgW1s, rgW1e, rgTs, rgTe, true, false);
 				resCell[i] = res;
@@ -1153,7 +1246,7 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 			if(res == null || !res.cont) {
 				continue;
 			}
-			
+
 			resCell[i] = detectGrowSp(datc.get(i),res,opts);
 		}
 			
@@ -1244,6 +1337,21 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 	private float[][][] cropData(float[][][] dat,int rgWs, int rgWe, int rgHs, int rgHe, int rgTs, int rgTe) {
 //		System.out.println(rgWs + " " + rgWe + " " + rgHs + " " + rgHe + " " + rgTs + " " + rgTe);
 		float[][][] result = new float[rgWe-rgWs+1][rgHe-rgHs+1][rgTe-rgTs+1];
+		for(int k = rgTs;k<=rgTe;k++) {
+			for(int i = rgWs;i<=rgWe;i++) {
+				for(int j = rgHs;j<=rgHe;j++) {
+					result[i-rgWs][j-rgHs][k-rgTs] = dat[i][j][k];
+				}
+			}
+		}
+		
+		
+		return result;
+	}
+	
+	private int[][][] cropData(int[][][] dat,int rgWs, int rgWe, int rgHs, int rgHe, int rgTs, int rgTe) {
+//		System.out.println(rgWs + " " + rgWe + " " + rgHs + " " + rgHe + " " + rgTs + " " + rgTe);
+		int[][][] result = new int[rgWe-rgWs+1][rgHe-rgHs+1][rgTe-rgTs+1];
 		for(int k = rgTs;k<=rgTe;k++) {
 			for(int i = rgWs;i<=rgWe;i++) {
 				for(int j = rgHs;j<=rgHe;j++) {
@@ -1485,7 +1593,9 @@ public class ProgressBarRealizedStep2 extends SwingWorker<int[][][], Integer> {
 		int T = x.length;
 		
 		// search peak
-		float dfMax = df[tPeak];
+		float dfMax = Math.max(Math.max(df[tPeak],df[Math.max(0,tPeak)]),df[Math.min(T-1,tPeak+1)]);
+		
+		
 		float base0 = x[tPeak];
 		float base1 = x[tPeak];
 		
