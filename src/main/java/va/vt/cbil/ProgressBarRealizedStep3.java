@@ -210,6 +210,12 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		
 		publish(2);
 		// evtTop
+		// ---------------------------------------------------------------------
+		// mov2spSNR has randomness, may result in difference
+		// mov2spSNR, when cluster pixels to super pixels, there could be some pixels having the same cost/priority
+		// In MATLAB and Fiji, the order of pick different pixel may result in difference. 
+		// ---------------------------------------------------------------------
+		
 		EvtTopResult evtTopresult = evtTop(dat,dF,lblxMap,riseX,opts,lblxMapEX);
 		HashMap<Integer,RiseNode> riseLst = evtTopresult.riseLst;
 		HashMap<Integer,ArrayList<int[]>> evtLst = evtTopresult.evtLst;
@@ -373,7 +379,7 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		for(Map.Entry<Integer,ArrayList<int[]>> entry:lblxMap.entrySet()) {				// checked
 			ArrayList<int[]> points = entry.getValue();
 			int label = entry.getKey();
-			float t00 = riseX0[label-1];
+			float t00 = Math.round(riseX0[label-1]);
 			if(t00!=-1) {
 				for(int[] p:points) {
 					riseMap[p[0]][p[1]][p[2]] = t00;
