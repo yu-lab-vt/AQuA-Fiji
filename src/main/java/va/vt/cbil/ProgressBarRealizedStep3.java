@@ -391,12 +391,12 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 		System.out.println("Detecting super events ...");
 		int stp11 = (int) Math.max(Math.round((double)opts.maxStp/2), 2);							// checked
 		int[][][] seMap = null;
-		if(opts.superEventdensityFirst == 1) {
-			SvNeibResult svNeibResult = svNeib(lblMapS, lblxMap, riseMap,stp11,opts.cOver);			// checked
-			seMap = sv2se(lblMapS,lblxMap,svNeibResult);
-		}else {
+//		if(opts.superEventdensityFirst == 1) {
+//			SvNeibResult svNeibResult = svNeib(lblMapS, lblxMap, riseMap,stp11,opts.cOver);			// checked
+//			seMap = sv2se(lblMapS,lblxMap,svNeibResult);
+//		}else {
 			seMap = sp2evtStp1(lblMapS,riseMap,0,stp11,opts.cOver,dat);
-		}
+//		}
 			
 		showTime();
 		HashMap<Integer,ArrayList<int[]>> seLst = label2idx(seMap);									// checked
@@ -1923,17 +1923,12 @@ public class ProgressBarRealizedStep3 extends SwingWorker<int[][][], Integer> {
 				}
 			}
 			
-			
 			riseX = riseX1;
 			lblMapS = lblMapS1;
 			spVoxLst = label2idx(lblMapS);
 			System.out.println(spVoxLst.size());
 			
 		}
-			
-			
-		
-		
 		
 		return lblMapS;
 	}
